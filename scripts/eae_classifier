@@ -1,0 +1,11 @@
+# tissue classifier for EAE mouse brain images
+# call as
+# eae_classifier img atlas_definition labelimg 
+# Use full path names!!!!!
+../bin/erodemask -unsigned $1 $3_mask
+../bin/gamixture -unsigned $1 $3_mask $2 $3.mixture
+../bin/svpaseg -unsigned $1 default $2 $3.mixture $3_alllabels
+../bin/relabel_analyze $3_alllabels $3 3 2 4 3 
+
+
+

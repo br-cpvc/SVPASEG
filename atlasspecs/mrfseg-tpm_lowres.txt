@@ -1,0 +1,23 @@
+t 0 7
+0 1
+0.2 1
+0.2 1
+0 0.05
+0 0.3
+0 0.3
+csf 1 0 0
+/share/sig_pic/jupeto/tmp/svpaseg/atlases/prob_csf_53
+gm 1 0 0
+/share/sig_pic/jupeto/tmp/svpaseg/atlases/prob_gray_53
+wm 1 0 0
+/share/sig_pic/jupeto/tmp/svpaseg/atlases/prob_white_53
+csfbg 0 1 0
+csfgm 0 1 2
+gmwm 0 2 3
+0 0 1 1 0 1 1
+0 -1 1 1 0 0 1
+1 1 -1 1 1 0 0
+1 1 1 -1 1 1 0
+0 0 1 1 -1 1 1
+1 0 0 1 1 -1 1
+1 1 0 0 1 1 -1

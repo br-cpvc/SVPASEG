@@ -1,0 +1,13 @@
+Quick installation:
+
+1. untar svpaseg21_dist.tar
+2. cd src
+3. make all
+4. cd ../atlases
+5. unzip atlas-files, assuming the zip-files have been downloaded to this directory, 
+   if they are not, then cp them here 
+6. cd ..
+7. run configure_atlases
+
+for more info check the documentation.
+

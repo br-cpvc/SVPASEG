@@ -1,0 +1,8 @@
+# svpa based tissue classifier. Assumes equal variances for the tissue types
+# call as
+# svpaseg_classifier img brainmask atlas_definition mixture_params labelimg
+# Say default for the brainmask if you'd like to nonzero intensities of the image to be masked out
+# Use full path names!!!!!
+../bin/gamixture $1 $2 $3 $4 -equalvar 1 -restarts 10
+../bin/svpaseg $1 $2 $3 $4 $5 
+

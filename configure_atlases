@@ -1,0 +1,7 @@
+./bin/conf_atlas_dirs ./atlasspecs/svpaseg-tpm.txt ${PWD}/atlases/
+./bin/conf_atlas_dirs ./atlasspecs/svpaseg-pve.txt ${PWD}/atlases/ 
+./bin/conf_atlas_dirs ./atlasspecs/svpaseg-nopve.txt ${PWD}/atlases/
+./bin/conf_atlas_dirs ./atlasspecs/svpaseg-tpm_lowres.txt ${PWD}/atlases/
+./bin/conf_atlas_dirs ./atlasspecs/svpaseg-nopve_lowres.txt ${PWD}/atlases/
+./bin/conf_atlas_dirs ./atlasspecs/mrfseg-tpm.txt ${PWD}/atlases/
+./bin/conf_atlas_dirs ./atlasspecs/mrfseg-tpm_lowres.txt ${PWD}/atlases/
