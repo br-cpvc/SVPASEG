@@ -58,14 +58,14 @@ int main(int argc,char** argv)
   bool changed_n = false;
   bool signedData = true;
 
-  int intstatus,i,j,rr; 
+  int intstatus,rr; 
   int pveLabels,pureLabels;  
 
   if(argc > 2) {
     if(!(strcmp(argv[1],"-unsigned"))) {
       signedData = false;
       argc--;
-      for(i = 1;i < argc;i++) {
+      for(int i = 1;i < argc;i++) {
         argv[i] = argv[i + 1];
       }
     }
@@ -123,7 +123,7 @@ int main(int argc,char** argv)
   }
   if(atlas.n > 0) {
     atlasImages = new AnalyzeImage*[atlas.n];
-    for(i = 0;i < atlas.n;i++) {
+    for(int i = 0;i < atlas.n;i++) {
       atlasImages[i] = new AnalyzeImage;
     }
     intstatus = readAtlasImages(&atlas,atlasImages);
@@ -156,7 +156,7 @@ int main(int argc,char** argv)
   // remember that pve labels have to have indeces greater than pure labels
   pureLabels = 0;
   pveLabels = 0;
-  for(i = 0;i < atlas.numberOfLabels;i++) {
+  for(int i = 0;i < atlas.numberOfLabels;i++) {
     if(atlas.labelTypes[i].pureLabel == true) pureLabels++;
     else pveLabels++;     
   }
@@ -177,7 +177,7 @@ int main(int argc,char** argv)
   lowLimit = new float[3*pureLabels + pveLabels]; 
   upLimit = new float[3*pureLabels + pveLabels]; 
   // initialize by defults, then adapt the necessary values
-  for(i = 0; i < pureLabels;i++) {
+  for(int i = 0; i < pureLabels;i++) {
     upLimit[3*i] = maxMu;
     lowLimit[3*i] = minMu;
     upLimit[3*i + 1] = maxVar;  // this is re-set later on
@@ -195,7 +195,7 @@ int main(int argc,char** argv)
   upLimit[2] = 0.0;
    
   // pve classes
-  for(i = 0; i <pveLabels;i++) {
+  for(int i = 0; i <pveLabels;i++) {
     if(changed_n) {
       upLimit[pureLabels*3 + i] = 1.0;
     }
@@ -204,7 +204,7 @@ int main(int argc,char** argv)
     }
     lowLimit[pureLabels*3 + i] = 0.0;
   }  
-  for(i = 0; i < atlas.n;i++) {
+  for(int i = 0; i < atlas.n;i++) {
     rr = i + 1;
     cout << "Region " << rr << ":computing parzen estimate..." << endl;;  
     computeY(&hatf,&img,atlasImages[i]);
@@ -214,35 +214,35 @@ int main(int argc,char** argv)
     // set the region wise limits
     maxVar = 0.0;
     mean = 0.0;
-    for(j = 0;j < hatf.n; j++) {
+    for(int j = 0;j < hatf.n; j++) {
       mean = mean +  (hatf.x[1] - hatf.x[0])*(hatf.y[j])*(hatf.x[j]);
     }
-    for(j = 0;j < hatf.n; j++) {
+    for(int j = 0;j < hatf.n; j++) {
       maxVar = maxVar + (hatf.x[1] - hatf.x[0])*hatf.y[j]*(hatf.x[j] - mean)*(hatf.x[j] - mean);
     }
     maxVar = maxVar/pureLabels;
-    for(j = 0; j < pureLabels;j++) {
+    for(int j = 0; j < pureLabels;j++) {
        upLimit[3*j + 1] = maxVar;
     }
     if(!atlas.regionLowProb.empty()) {
-      for(j = 1; j < pureLabels;j++) {
+      for(int j = 1; j < pureLabels;j++) {
         lowLimit[j*3 + 2] = atlas.regionLowProb[i][j];
         upLimit[j*3 + 2] = atlas.regionUpProb[i][j];
       }
-      for(j = 0; j < pveLabels;j++) {
+            for(int j = 0; j < pveLabels;j++) {
         lowLimit[pureLabels*3 + j] = atlas.regionLowProb[i][pureLabels + j];
         upLimit[pureLabels*3 + j] = atlas.regionUpProb[i][pureLabels + j];
       }
     }
     else {
       if(!changed_n) {
-        for(j = 1; j < pureLabels;j++) { // skip background
+        for(int j = 1; j < pureLabels;j++) { // skip background
           upLimit[3*j + 2] = 0.0; 
         }
-        for(j = 0; j < pveLabels;j++) {
+        for(int j = 0; j < pveLabels;j++) {
           upLimit[pureLabels*3 + j] = 0.0;
         }
-        for(j = 0;j < atlas.permittedLabels[i].len;j++) {
+        for(int j = 0;j < atlas.permittedLabels[i].len;j++) {
 	  //   cout << atlas.permittedLabels[i].list[j] << " ";  
           if(atlas.permittedLabels[i].list[j] > (pureLabels -1)) {
             upLimit[3*pureLabels + atlas.permittedLabels[i].list[j] - pureLabels] = 1.0;
@@ -364,12 +364,12 @@ int main(int argc,char** argv)
       cout << "GA converged after " << itercount << " iterations." << endl;
       cout << "the KL distance is " << pop.energies[0] << "." << endl;
       // put the best invividual into popRuns
-     for(j = 0;j < pureLabels;j++) {
+     for(int j = 0;j < pureLabels;j++) {
         gaSetMu(&popRuns,n,j,gaGetMu(&pop,0,j));
         gaSetSigma2(&popRuns,n,j,gaGetSigma2(&pop,0,j));
         gaSetProb(&popRuns,n,j,gaGetProb(&pop,0,j));     
       }
-      for(j = 0;j < pveLabels;j++) {
+      for(int j = 0;j < pveLabels;j++) {
         gaSetProb(&popRuns,n,j + pureLabels,gaGetProb(&pop,0,j + pureLabels));
       }
       popRuns.energies[n] = pop.energies[0];
@@ -384,12 +384,12 @@ int main(int argc,char** argv)
     delete[] randomUnsignedInts2;
     if( params.restarts > 1) gaReorder(&popRuns); 
     // convert the best individual to mixtureSpec
-    for(j = 0;j < pureLabels;j++) {
+    for(int j = 0;j < pureLabels;j++) {
       putMu(&mixture,i,j,gaGetMu(&popRuns,0,j));
       putSigma2(&mixture,i,j,gaGetSigma2(&popRuns,0,j));
       putProb(&mixture,i,j,gaGetProb(&popRuns,0,j));     
     }
-    for(j = 0;j < pveLabels;j++) {
+    for(int j = 0;j < pveLabels;j++) {
       putProb(&mixture,i,j + pureLabels,gaGetProb(&popRuns,0,j + pureLabels));
     }
   }
