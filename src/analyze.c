@@ -634,8 +634,9 @@ while (!found) {
     for(j = (-windowSize);j < (windowSize + 1) ;j++) {
       for(k = (-windowSize);k < (windowSize + 1);k++) {
          if(getSafeVoxelValue(img,x + i,y + j,z + k) > tr) {
-           if( (pow((float) i,2) + pow((float) j,2) + pow((float) k,2)) < d) {
-             d = (pow((float) i,2) + pow((float) j ,2) + pow((float) k,2));
+           float fDistanceHere = (float)(i*i + j*j + k*k);
+           if(fDistanceHere < d) {
+             d = fDistanceHere;
              *cx = x + i;
              *cy = y + j;
              *cz = z + k;
