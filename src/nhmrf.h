@@ -237,16 +237,16 @@ int parseParamsSvpaseg(SvpasegParameters* param,int n,char** arguments,AtlasSpec
 
 int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* mask,AnalyzeImage** atlasImages,AnalyzeImage** labelLikelihoods);
 
-int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2,int maxIterations, bool verbose);
+//int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2,int maxIterations, bool verbose);
 
 // the next three functions do the same under 3 slightly different settings and 
 // they should be combined
 
 int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture, AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1,float beta2,int maxIterations, bool verbose );
 
-int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, AnalyzeImage** tissueProbMaps, float beta1, float beta2, int maxIterations, bool verbose);
+//int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, AnalyzeImage** tissueProbMaps, float beta1, float beta2, int maxIterations, bool verbose);
 
-int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture, AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1,float beta2,int maxIterations, bool verbose );
+//int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture, AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1,float beta2,int maxIterations, bool verbose );
 //{
 // };
  
