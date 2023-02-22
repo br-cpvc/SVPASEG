@@ -624,6 +624,9 @@ bool findClosestNonZero(AnalyzeImage* img,int x,int y, int z,int* cx, int* cy, i
   *cy = y;  // closest y coordinate
   *cz = z;  // closest z coordinate
   found = false;
+
+int retries = 0;
+while (!found) {
   // if value at (x,y,z) > tr then ok
   if(getVoxelValue(img,*cx,*cy,*cz) > tr) return(true);
   d = pow((float) (img->header.x_dim + img->header.y_dim  + img->header.z_dim),2);
@@ -643,6 +646,14 @@ bool findClosestNonZero(AnalyzeImage* img,int x,int y, int z,int* cx, int* cy, i
        }
      }
    }
+  if (!found) {
+    cout << "WARNING: No atlas region found within a window size of " << windowSize << "! Retrying with twice the window size." << endl;
+			windowSize *= 2;
+  }
+  if (retries>10) {
+    break;
+  }
+}
    return(found);
 
 }
