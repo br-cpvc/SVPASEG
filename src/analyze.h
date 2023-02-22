@@ -331,8 +331,8 @@ int copyNifti2Analyze(nifti_image* nim, AnalyzeImage* img);
 // int copyAnalyze2Nifti(AnalyzeImage* img, nifti_image* nim);
 int copyNifti2AnalyzeLabel(nifti_image* nim, AnalyzeLabelImage* img);
 
-int readImage(char* filename,AnalyzeImage* img, bool signedData = true);
-int writeImage(char* filename, AnalyzeImage* img, bool overwrite, bool signedData = true);
+int readImage(const char* filename,AnalyzeImage* img, bool signedData = true);
+int writeImage(const char* filename, AnalyzeImage* img, bool overwrite, bool signedData = true);
 int readLabelImage(char* filename,AnalyzeLabelImage* img);
 int writeLabelImage(char* filname,AnalyzeLabelImage* img,bool overwrite);
 
