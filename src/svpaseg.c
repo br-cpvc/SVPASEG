@@ -132,12 +132,7 @@ int main(int argc, char** argv)
  
 
   if(atlas.n > 0) {
-    //atlasImages = new AnalyzeImage*[atlas.n];
-	//atlasImages = (AnalyzeImage**) malloc(atlas.n*sizeof(AnalyzeImage*));
 	atlasImages.resize(atlas.n);
-/*    for(i = 0;i < atlas.n;i++) {
-      atlasImages[i] = new AnalyzeImage;
-    }*/
     intstatus = readAtlasImages(&atlas,atlasImages);
     if(intstatus != 0) {
       cout << "Could not read probabilistic atlas. Error: " << intstatus << endl;
@@ -157,7 +152,6 @@ int main(int argc, char** argv)
     mixture.patlas->n = 1;
    
     atlasImages.resize(1);
-    //atlasImages[0] = new AnalyzeImage;
     boolstatus = copyImage(&mask,&atlasImages[0]);
   }  
   
@@ -179,30 +173,19 @@ int main(int argc, char** argv)
       return(10);
     }
   }
-/*  if(atlas.useTPM) {
-    TPMImages = new AnalyzeImage*[pureLabels];
-    for(i = 0;i < pureLabels;i++) {
-      TPMImages[i] = new AnalyzeImage;
-    }
+
+  if(atlas.useTPM) {
+		TPMImages.resize(pureLabels);
+
     intstatus = readTPMimages(&atlas,TPMImages,&mask,pureLabels);
     if(intstatus != 0) {
       cout << "Could not read TPMs. Error: " << intstatus << endl;
       return(11);
     }  
-    //    intstatus = processTPMimages(&atlas, TPMimages,&mask,pureLabels);
-    // if(intstatus != 0) {
-    //  cout << "Could not process TPMs. Error: " << intstatus << endl;
-    //  return(11);   
-    //  }
-    // cout << "TPMs have been read and processed" << endl;
-  }*/
+
+	}
 
   cout << "Computing the ML classification" << endl; 
-  //labelLikelihoods = new AnalyzeImage*[atlas.numberOfLabels - 1];
-  //labelLikelihoods = (AnalyzeImage**) malloc((atlas.numberOfLabels - 1)*sizeof(AnalyzeImage*));
-  /*for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
-    labelLikelihoods[i] = new AnalyzeImage;
-  }*/
   labelLikelihoods.resize(atlas.numberOfLabels - 1);
   for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
     if(!(newImage(&labelLikelihoods[i],&img))) {
@@ -221,23 +204,21 @@ int main(int argc, char** argv)
 /*  if(markov) {
     itercount = computeMRF(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
   }
-  else {
+  else {*/
     if(atlas.useTPM) {
       itercount = computeGibbsAtlas(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, TPMImages, params.beta1, params.beta2,50,true);
     }
     else { 
+      /*
       if(atlas.onlyPureLabels) {
         itercount = computeGibbsPure(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
      } 
       else {*/
         itercount = computeGibbs(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
      /* }
-    }
-  }*/
+     } */
+  }
   cout << "Iterations: " << itercount << endl;
- /* for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
-    freeImage(labelLikelihoods[i]);
-  }*/
   intstatus = convertPVElabels(&labelImg,&pveLabelImg,&img,atlasImages,&mixture);
   if(intstatus != 0) {
     cout << "Conversion to pure labels did not succeed" << endl;
@@ -250,9 +231,6 @@ int main(int argc, char** argv)
     return(15);
   }  
 
-  //TODO: this return statement was put in because of a segmentation fault. dig into this
-  exit(0);
-
   if(params.writePveLabelImage) {
     intstatus = writeLabelImage(params.pveLabelImage,&pveLabelImg,clobber);
     if(intstatus != 0) {
@@ -261,19 +239,7 @@ int main(int argc, char** argv)
     }
   }
 
-  //freeAtlasImages(&atlas,atlasImages);
-//  if(atlas.useTPM) freeTPMimages(&atlas,TPMImages,pureLabels);
-
-  /*  freeImage(&img);
-  freeImage(&mask);
-  freeLabelImage(&pveLabelImg);
-  freeLabelImage(&labelImg);  
- */
-  cout << "Images freed" << endl;
-  
- 
   return(0);
-  // think about freeing the rest of the images as well
 
 }
 
