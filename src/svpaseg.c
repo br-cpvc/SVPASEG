@@ -54,6 +54,7 @@ int main(int argc, char** argv)
   bool useTPM = false;
   bool onlyPureLabels = false;
  
+  markov = false; // XXXXXXX was undefined
 
   float beta1,beta2;
 
@@ -242,6 +243,10 @@ int main(int argc, char** argv)
     cout << "Could not write labeled image. Error: " << intstatus << endl;
     return(15);
   }  
+
+  //TODO: this return statement was put in because of a segmentation fault. dig into this
+  return(0);
+
   if(params.writePveLabelImage) {
     intstatus = writeLabelImage(params.pveLabelImage,&pveLabelImg,clobber);
     if(intstatus != 0) {
@@ -249,6 +254,7 @@ int main(int argc, char** argv)
       return(16);
     }
   }
+
   freeAtlasImages(&atlas,atlasImages);
   if(atlas.useTPM) freeTPMimages(&atlas,TPMImages,pureLabels);
   freeImage(&img);

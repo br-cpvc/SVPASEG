@@ -49,13 +49,18 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <values.h>
+//#include <values.h>
+#include <limits.h>
 #include <math.h>
 #include "nifti1.h"
 #include "nifti1_io.h"
 
 using namespace std;
 
+#define M_PI 3.14159265358979323846
+#define MAXFLOAT std::numeric_limits<float>::max()
+#define MINFLOAT std::numeric_limits<float>::lowest()
+inline bool isnan(double x) { return x != x; }
 
 #define DT_NONE                 0 
 #define DT_UNKNOWN              0      /*Unknown data type*/ 
