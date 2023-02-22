@@ -35,6 +35,8 @@
 #define ATLASSPEC_H
 
 #include "analyze.h"
+#include <vector>
+#include <string>
 
 #define MAX_NAME_LEN 256
 #define MAX_LABELS 20 
@@ -55,16 +57,16 @@ struct AtlasSpec {
   int n; // Gives the number of different fuzzy regions
   int numberOfLabels; // Gives the number of possible labels, background included 
    
-  char** labelnames;    // Gives the names of labels; 0 is reserved for background
-  char** filenames;    // Gives the names of the files containg fuzzy masks
-  char** regionnames;  // Gives the description of each region (optional)
+  std::vector<std::string> labelnames;    // Gives the names of labels; 0 is reserved for background
+  std::vector<std::string> filenames;    // Gives the names of the files containg fuzzy masks
+  std::vector<std::string> regionnames;  // Gives the description of each region (optional)
   LabelList* permittedLabels; // Labels permitted for each region 
                        
   float** mrfConstants; // pairwise interactions in the mrf
   LabelType* labelTypes;  // types of labels (pve or gaussian)
   float** regionLowProb;
   float** regionUpProb;  
-  char** TPMfilenames; // Gives the tissue probability maps for each region 
+  std::vector<std::string> TPMfilenames; // Gives the tissue probability maps for each region 
   bool onlyPureLabels;
   bool useTPM;                
 };
@@ -78,8 +80,8 @@ void freeAtlas(AtlasSpec* atlas);
 int readAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages); 
 void freeAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages);
 bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask);
-int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask ,int pureLabels);
-void freeTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, int pureLabels);
+//int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask ,int pureLabels);
+//void freeTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, int pureLabels);
 // int processTPMimages(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask, int pureLabels);
 
 

@@ -123,7 +123,7 @@ int gaInitializePopulation(Population* pop,int size, int dim, int numberOfLabels
   }
   pop->energies = new float[pop->size];
   
-  srand(time(0));
+  srand(1);
   for(i = 0;i < pop->size;i++) {
     gaSetMu(pop,i,0,0.0);    // background
     gaSetProb(pop,i,0,0.0);  // background
@@ -215,7 +215,7 @@ void gaEvaluate(Population* pop,PdfEstimate* hatf)
     mixtureSize = (2*(pop->dim) + (pop->dim)*(pop->dim))*(pop->numberOfLabels - pop->numberOfPveLabels) + pop->numberOfLabels;
   }
   // copyPartialPopulation(pop,selPop);
-  srand(time(0));
+  //srand(time(0));
   for(i = 0;i < elitism;i++) {
     for(j = 0;j < mixtureSize;j++) {
       selPop->mixtures[i][j] = pop->mixtures[i][j];  
@@ -313,7 +313,7 @@ void gaBLX(Population* pop,Population* selPop,float xoverRate, int elitism, floa
       pop->mixtures[i][j] = selPop->mixtures[i][j];
     }
   }
-  srand(time(0));
+  //srand(time(0));
   for(i = elitism + leaveAlone;i < pop->size;i++) {
     par1 = rand() % pop->size;
     par2 = rand() % pop->size;

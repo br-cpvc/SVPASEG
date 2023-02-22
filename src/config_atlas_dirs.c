@@ -66,18 +66,18 @@ int main(int argc, char** argv)
   if(fullpath[strlen(fullpath) - 1] != '/') strcat(fullpath,"/");
 
   for(i = 0;i < atlas.n;i++) {
-    extractpath(filename,pathname,atlas.filenames[i]);
+    extractpath(filename,pathname,atlas.filenames[i].c_str());
     strcpy(pathname,fullpath);
     strcat(pathname,filename);
-    strcpy(atlas.filenames[i],pathname);
+    atlas.filenames[i] = std::string(pathname);
   }
   if(atlas.useTPM) {
     purelabels = countPureLabels(&atlas);
     for(i = 0;i < purelabels;i++) {
-      extractpath(filename,pathname,atlas.TPMfilenames[i]);
+      extractpath(filename,pathname,atlas.TPMfilenames[i].c_str());
       strcpy(pathname,fullpath);
       strcat(pathname,filename);
-      strcpy(atlas.TPMfilenames[i],pathname);
+      atlas.TPMfilenames[i] = std::string(pathname);
     }
   }
  
