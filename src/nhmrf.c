@@ -283,7 +283,7 @@ int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* 
 // labels that are forbidden for each region should receive the probability 0 in the mixture. 
 // no explicit checking for forbidden labels is done
 
-
+/*
 int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
 {
   int x,y,z;
@@ -298,8 +298,7 @@ int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask
   int iteration = 0;
   float distLookup[27];
   float sliceWidth[3], sliceWidthMin;
-  char newLabel;
-  AnalyzeImage tmpimg;
+  char newLabel;  AnalyzeImage tmpimg;
 
   //  bool testverbose;
   // int count = 0;
@@ -437,7 +436,7 @@ int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask
  
   return(iteration);
 }
-
+*/
 int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
 {
   int x,y,z;
@@ -586,7 +585,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
 
 // Computes the ICM algorithm when the Atlas priors are used. Assumes that 
 // only the pure labels can exist. 
-
+/*
 int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, AnalyzeImage** tissueProbMaps, float beta1, float beta2, int maxIterations,bool verbose)
 {
   int x,y,z;
@@ -733,10 +732,10 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
  
   return(iteration);
 }
-
+*/
 // Computes the ICM algorithm when the 
 // only the pure labels can exist. 
-
+/*
 int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
 {
   int x,y,z;
@@ -885,7 +884,7 @@ int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage
  
   return(iteration);
 }
-
+*/
 
 
 int convertPVElabels(AnalyzeLabelImage* crispLabels, AnalyzeLabelImage* pveLabels, AnalyzeImage* img, AnalyzeImage** atlasImages, MixtureSpec* mixture)
