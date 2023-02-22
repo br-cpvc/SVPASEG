@@ -536,7 +536,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
             //  compute the second order term in the prior, non-normalized
             // this is the same for every region.
             for(l = 0;l < (numberOfLabels - 1);l++) {
-              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1],
+              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1].data(),
                                               x,y,z,distLookup,beta2);
 	     
             }
@@ -686,7 +686,7 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
             //  compute the second order term in the prior, non-normalized
             // this is the same for every region.
             for(l = 0;l < (pureLabels);l++) {
-              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1],
+              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1].data(),
                                               x,y,z,distLookup,beta2);
 	      
             }

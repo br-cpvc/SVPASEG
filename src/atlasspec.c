@@ -79,23 +79,23 @@ bool readAtlasSpec(AtlasSpec* atlas,char* filename)
   ifile >> atlas->numberOfLabels;
  
   if(!probLimits) {
-    atlas->regionLowProb = NULL;
-    atlas->regionUpProb = NULL;
+    atlas->regionLowProb.clear();
+    atlas->regionUpProb.clear();
   }
   else {
     if(atlas->n > 0) {
-      atlas->regionLowProb = new float*[atlas->n];
-      atlas->regionUpProb  = new float*[atlas->n];
+      atlas->regionLowProb.resize(atlas->n);
+      atlas->regionUpProb.resize(atlas->n);
       for(i = 0;i < atlas->n;i++) {
-        atlas->regionLowProb[i] = new float[atlas->numberOfLabels];
-        atlas->regionUpProb[i]  = new float[atlas->numberOfLabels];
+        atlas->regionLowProb[i].resize(atlas->numberOfLabels);
+        atlas->regionUpProb[i].resize(atlas->numberOfLabels);
       }
     }
     else { 
-      atlas->regionLowProb = new float*[1];
-      atlas->regionUpProb  = new float*[1];
-      atlas->regionLowProb[0] = new float[atlas->numberOfLabels];
-      atlas->regionUpProb[0]  = new float[atlas->numberOfLabels];
+      atlas->regionLowProb.resize(1);
+      atlas->regionUpProb.resize(1);
+      atlas->regionLowProb[0].resize(atlas->numberOfLabels);
+      atlas->regionUpProb[0].resize(atlas->numberOfLabels);
     }
   }   
 
@@ -103,16 +103,16 @@ bool readAtlasSpec(AtlasSpec* atlas,char* filename)
   if(atlas->n > 0) {
     atlas->filenames.resize(atlas->n);
     atlas->regionnames.resize(atlas->n); 
-    atlas->permittedLabels = new LabelList[atlas->n]; 
+    atlas->permittedLabels.resize(atlas->n); 
   }
  
   atlas->labelnames.resize(atlas->n);
-  atlas->labelTypes = new LabelType[atlas->numberOfLabels];
-  atlas->mrfConstants = new float*[atlas->numberOfLabels];
+  atlas->labelTypes.resize(atlas->numberOfLabels);
+  atlas->mrfConstants.resize(atlas->numberOfLabels);
   atlas->TPMfilenames.resize(atlas->n); 
 
   for(i = 0;i < atlas->numberOfLabels;i++) {
-    atlas->mrfConstants[i] = new float[atlas->numberOfLabels];
+    atlas->mrfConstants[i].resize(atlas->numberOfLabels);
    }
 
   // set the background label info
@@ -285,16 +285,6 @@ int writeAtlasSpec(AtlasSpec* atlas,char* filename, char atlasType, bool overwri
 
 void freeAtlas(AtlasSpec* atlas) 
 {
-  int i;  
-
-  for(i = 0;i < atlas->numberOfLabels;i++) {
-    delete[] atlas->mrfConstants[i];
-   }
-   // reserving the memory 
-  delete[] atlas->labelTypes;
-  delete[] atlas->mrfConstants;
-  delete[] atlas->permittedLabels;  
-
 }
 
 // reads the images in the atlas and ensures that each
