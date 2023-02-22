@@ -200,6 +200,8 @@ int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* 
   
   // remember: the label 0 is reserved for background 
   if((mixture->patlas->n) == 0) {
+    int lvalue;
+    int label1,label2;
     int j = 0;
     int i = 0;
     if(mask->data[i] > 0.5) {
