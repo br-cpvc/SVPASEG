@@ -34,15 +34,17 @@
 #include "atlasspec.h"
 #include "nhmrf.h"
 
+#include <vector>
+
 int main(int argc, char** argv) 
 {
   AnalyzeImage img;
   AnalyzeImage mask;
   AnalyzeLabelImage labelImg;
   AnalyzeLabelImage pveLabelImg;
-  AnalyzeImage** atlasImages;
-  AnalyzeImage** labelLikelihoods;
-  AnalyzeImage** TPMImages;
+  std::vector<AnalyzeImage> atlasImages;
+  std::vector<AnalyzeImage> labelLikelihoods;
+  std::vector<AnalyzeImage> TPMImages;
   MixtureSpec mixture;
   AtlasSpec atlas;
   SvpasegParameters params;
@@ -131,10 +133,11 @@ int main(int argc, char** argv)
 
   if(atlas.n > 0) {
     //atlasImages = new AnalyzeImage*[atlas.n];
-	atlasImages = (AnalyzeImage**) malloc(atlas.n*sizeof(AnalyzeImage*));
-    for(i = 0;i < atlas.n;i++) {
+	//atlasImages = (AnalyzeImage**) malloc(atlas.n*sizeof(AnalyzeImage*));
+	atlasImages.resize(atlas.n);
+/*    for(i = 0;i < atlas.n;i++) {
       atlasImages[i] = new AnalyzeImage;
-    }
+    }*/
     intstatus = readAtlasImages(&atlas,atlasImages);
     if(intstatus != 0) {
       cout << "Could not read probabilistic atlas. Error: " << intstatus << endl;
@@ -153,9 +156,9 @@ int main(int argc, char** argv)
     atlas.n = 1;
     mixture.patlas->n = 1;
    
-    atlasImages = new AnalyzeImage*[atlas.n];
-    atlasImages[0] = new AnalyzeImage;
-    boolstatus = copyImage(&mask,atlasImages[0]);
+    atlasImages.resize(1);
+    //atlasImages[0] = new AnalyzeImage;
+    boolstatus = copyImage(&mask,&atlasImages[0]);
   }  
   
 
@@ -196,12 +199,13 @@ int main(int argc, char** argv)
 
   cout << "Computing the ML classification" << endl; 
   //labelLikelihoods = new AnalyzeImage*[atlas.numberOfLabels - 1];
-  labelLikelihoods = (AnalyzeImage**) malloc((atlas.numberOfLabels - 1)*sizeof(AnalyzeImage*));
-  for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
+  //labelLikelihoods = (AnalyzeImage**) malloc((atlas.numberOfLabels - 1)*sizeof(AnalyzeImage*));
+  /*for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
     labelLikelihoods[i] = new AnalyzeImage;
-  }
+  }*/
+  labelLikelihoods.resize(atlas.numberOfLabels - 1);
   for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
-    if(!(newImage(labelLikelihoods[i],&img))) {
+    if(!(newImage(&labelLikelihoods[i],&img))) {
       cout << "Failed to create likelihood image" << endl;
       return(12);
     }  
@@ -257,13 +261,14 @@ int main(int argc, char** argv)
     }
   }
 
-  freeAtlasImages(&atlas,atlasImages);
+  //freeAtlasImages(&atlas,atlasImages);
 //  if(atlas.useTPM) freeTPMimages(&atlas,TPMImages,pureLabels);
-  freeImage(&img);
+
+  /*  freeImage(&img);
   freeImage(&mask);
   freeLabelImage(&pveLabelImg);
   freeLabelImage(&labelImg);  
- 
+ */
   cout << "Images freed" << endl;
   
  
