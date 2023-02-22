@@ -221,7 +221,7 @@ int copyNifti2AnalyzeLabel(nifti_image* nim, AnalyzeLabelImage* img)
 //           5 if nii file could not be opened
 //           6 if nii file could not be copieed to internal format
 
-int readImage(char* filename,AnalyzeImage* img, bool signedData)
+int readImage(const char* filename,AnalyzeImage* img, bool signedData)
 {
  
   char imgfname[256];
