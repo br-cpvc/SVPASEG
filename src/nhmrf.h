@@ -163,6 +163,7 @@ inline void normalize(float* pval, char n)
 //  return( (char) index);
 // }
 
+/*
 inline void collectValuesFromImagePP(std::vector<AnalyzeImage> & imagePP,float* collectHere,
                                      int x, int y, int z,int n) 
 {
@@ -171,6 +172,7 @@ inline void collectValuesFromImagePP(std::vector<AnalyzeImage> & imagePP,float* 
     collectHere[i] =getVoxelValue(&imagePP[i],x,y,z);
   } 
 }
+*/
 
 // Computes likelihood of value given parameters mean and variance. 
 // Returns the likelihood.
