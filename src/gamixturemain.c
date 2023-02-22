@@ -221,7 +221,7 @@ int main(int argc,char** argv)
     for(j = 0; j < pureLabels;j++) {
        upLimit[3*j + 1] = maxVar;
     }
-    if(atlas.regionLowProb != NULL) {
+    if(!atlas.regionLowProb.empty()) {
       for(j = 1; j < pureLabels;j++) {
         lowLimit[j*3 + 2] = atlas.regionLowProb[i][j];
         upLimit[j*3 + 2] = atlas.regionUpProb[i][j];
@@ -251,10 +251,10 @@ int main(int argc,char** argv)
       }
     } 
     gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes,lowLimit,upLimit,params.equalVar);
+                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
     for(n = 0;n < params.restarts;n++) {
       gaInitializePopulation(&pop,params.size,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes,lowLimit,upLimit,params.equalVar);
+                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
       gaSortPopulation(&pop,1);
       gaEvaluate(&pop,&hatf);
       gaReorder(&pop);
