@@ -40,6 +40,8 @@
 #include "atlasspec.h"
 #include "nhmrf.h"
 #include "parzen.h"
+#include "RFRandom.h"
+
 using namespace std;
 
 
@@ -235,11 +237,11 @@ inline void freePopulation(Population* pop)
 int parseParams(Parameters* param,int n,char** arguments); 
 void displayParameterHelp();
 int gaInitializePopulation(Population* pop,int size, int dim, int numberOfLabels,int numberOfPveLabels,
-                           LabelType* labelTypes, float* lowLimit, float* upLimit, bool equalVar = false);
+                           LabelType* labelTypes, float* lowLimit, float* upLimit,  RFRandom & random_number_generator, bool equalVar = false);
 void gaEvaluate(Population* pop,PdfEstimate* hatf);
-void gaTournamentSelection(Population* selPop,Population* pop,int elitism);
+void gaTournamentSelection(Population* selPop,Population* pop,int elitism, RFRandom & random_number_generator);
 void gaReorder(Population* pop); // Re-order individuals in the population according the fitness
-void gaBLX(Population* pop,Population* selPop,float xoverRate, int elitism, float alpha, float* lowLimit, float* upLimit, bool equalVar = false);
+void gaBLX(Population* pop,Population* selPop,float xoverRate, int elitism, float alpha, float* lowLimit, float* upLimit, RFRandom & random_number_generator, bool equalVar = false);
 void gaSortPopulation(Population* pop,int sortDim);
 bool gaTerminate(Population* pop, float thr);
 

@@ -46,19 +46,18 @@ int main(int argc,char** argv)
   AtlasSpec atlas; 
   PdfEstimate hatf;
   Parameters params;  
-  Population pop,selPop,popRuns;
+  Population popRuns;
 
   float maxMu,minMu,minVar,maxVar,mean;
   float* lowLimit;
   float* upLimit;  
   //  float* fitness;
 
-  bool terminate;
   bool boolstatus;
   bool changed_n = false;
   bool signedData = true;
 
-  int intstatus,i,j,itercount,rr,n; 
+  int intstatus,i,j,rr; 
   int pveLabels,pureLabels;  
 
   if(argc > 2) {
@@ -147,6 +146,9 @@ int main(int argc,char** argv)
     atlasImages[0] = new AnalyzeImage;
     boolstatus = copyImage(&mask,atlasImages[0]);
   } 
+
+  //srand(1);
+
   allocateMixtureSpec(&atlas,&mixture);
   
   // compute the number of pve labels and pure labels.
@@ -250,20 +252,28 @@ int main(int argc,char** argv)
         }
       }
     } 
-    gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
-    for(n = 0;n < params.restarts;n++) {
+
+    RFRandom kInitRNG;
+    kInitRNG.Seed(i+1);
+    gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels, pveLabels,
+		atlas.labelTypes.data(),lowLimit,upLimit, kInitRNG, params.equalVar);
+
+    #pragma omp parallel for
+    for(int n = 0;n < params.restarts;n++) {
+		Population pop, selPop;
+		RFRandom kRNG;
+		kRNG.Seed((n+1)*117*(i+1));
       gaInitializePopulation(&pop,params.size,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
+			atlas.labelTypes.data(),lowLimit,upLimit, kRNG, params.equalVar);
       gaSortPopulation(&pop,1);
       gaEvaluate(&pop,&hatf);
       gaReorder(&pop);
       copyPartialPopulation(&pop,&selPop);
-      terminate = false;
-      itercount = 0;
+      bool terminate = false;
+      int itercount = 0;
       while((!terminate) && (itercount < params.maxGenerations)) {
-        gaTournamentSelection(&selPop,&pop,1);
-        gaBLX(&pop,&selPop,params.xoverRate,1,params.alpha,lowLimit,upLimit,params.equalVar); 
+			gaTournamentSelection(&selPop,&pop,1,kRNG);
+			gaBLX(&pop,&selPop,params.xoverRate,1,params.alpha,lowLimit,upLimit,kRNG,params.equalVar); 
         if(params.sortPop) {
           gaSortPopulation(&pop,1);
         }
@@ -287,7 +297,7 @@ int main(int argc,char** argv)
       popRuns.energies[n] = pop.energies[0];
     }
     if( params.restarts > 1) gaReorder(&popRuns); 
-    // convert the best indivual to mixtureSpec
+    // convert the best individual to mixtureSpec
     for(j = 0;j < pureLabels;j++) {
       putMu(&mixture,i,j,gaGetMu(&popRuns,0,j));
       putSigma2(&mixture,i,j,gaGetSigma2(&popRuns,0,j));
