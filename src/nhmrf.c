@@ -172,7 +172,7 @@ int parseParamsSvpaseg(SvpasegParameters* param,int n,char** arguments,AtlasSpec
 // A value 0 is returned if everything is ok.
 
 
-int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* mask,AnalyzeImage** atlasImages,AnalyzeImage** labelLikelihoods)
+int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* mask,std::vector<AnalyzeImage> & atlasImages,std::vector<AnalyzeImage> & labelLikelihoods)
 {
   int dimx,dimy,dimz;
   // First test that the mask size and image size and atlas size match
@@ -187,10 +187,10 @@ int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* 
                                     || ( dimz != mask->header.z_dim ))
     return(2);
 
-  if(( dimx != atlasImages[0]->header.x_dim ) || ( dimy != atlasImages[0]->header.y_dim ) 
-     || ( dimz != atlasImages[0]->header.z_dim )) {
-    if(( dimx > atlasImages[0]->header.x_dim ) || ( dimy > atlasImages[0]->header.y_dim ) 
-       || ( dimz > atlasImages[0]->header.z_dim )) {
+  if(( dimx != atlasImages[0].header.x_dim ) || ( dimy != atlasImages[0].header.y_dim ) 
+     || ( dimz != atlasImages[0].header.z_dim )) {
+    if(( dimx > atlasImages[0].header.x_dim ) || ( dimy > atlasImages[0].header.y_dim ) 
+       || ( dimz > atlasImages[0].header.z_dim )) {
       return(1);
     }
     else {
@@ -207,7 +207,7 @@ int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* 
     i = 0;
     if(mask->data[i] > 0.5) {
       for(k = 1;k < (mixture->patlas->numberOfLabels);k++) {
-        labelLikelihoods[k - 1]->data[i] = 0.0;
+        labelLikelihoods[k - 1].data[i] = 0.0;
       }
       for(k = 1;k < (mixture->patlas->numberOfLabels);k++) {
         if(fabs(getProb(mixture,j,k)) > 0.0001) {
@@ -227,7 +227,7 @@ int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* 
         else {
           lvalue = 0.0;
         }
-        labelLikelihoods[k - 1]->data[i] = labelLikelihoods[k - 1]->data[i] 
+        labelLikelihoods[k - 1].data[i] = labelLikelihoods[k - 1].data[i] 
                                          + lvalue;      
       }
     }
@@ -243,10 +243,10 @@ int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* 
         for(z = 0;z < dimz;z++) {
           if(getVoxelValue(mask,x,y,z) > 0.5) {
             for(k = 1;k < (mixture->patlas->numberOfLabels);k++) {
-              putVoxelValue(labelLikelihoods[k - 1],x,y,z,0.0);
+              putVoxelValue(&labelLikelihoods[k - 1],x,y,z,0.0);
             }
             for(j = 0; j < mixture->patlas->n; j++) {
-              if(getVoxelValue(atlasImages[j],x,y,z) > 0.000001) {
+              if(getVoxelValue(&atlasImages[j],x,y,z) > 0.000001) {
                 for(k = 1;k < (mixture->patlas->numberOfLabels);k++) {
                   if(fabs(getProb(mixture,j,k)) > 0.0001) {
                     if(mixture->patlas->labelTypes[k].pureLabel) {
@@ -267,8 +267,8 @@ int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* 
                   }
 		  // labelLikelihoods[k - 1]->data[i] = labelLikelihoods[k - 1]->data[i] 
 		  //                     + (atlasImages[j]->data[i]) * lvalue; 
-		  tmpval = getVoxelValue(labelLikelihoods[k - 1],x,y,z) + getVoxelValue(atlasImages[j],x,y,z) * lvalue; 
-                  putVoxelValue(labelLikelihoods[k - 1],x,y,z,tmpval);
+		  tmpval = getVoxelValue(&labelLikelihoods[k - 1],x,y,z) + getVoxelValue(&atlasImages[j],x,y,z) * lvalue; 
+                  putVoxelValue(&labelLikelihoods[k - 1],x,y,z,tmpval);
                 }
               }
             }
@@ -287,7 +287,7 @@ int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* 
 // no explicit checking for forbidden labels is done
 
 
-int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
+int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
 {
   int x,y,z;
   int i,j,k,r;
@@ -351,11 +351,11 @@ int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask
           }
           for(r = 0;r < numberOfRegions;r++) {
             for(l = 0;l < (numberOfLabels - 1);l++) {
-              posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(atlasImages[r],x,y,z) * (exp ( beta1 * log (getProb(mixture,r,(l + 1)) + 0.0001)));
+              posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(&atlasImages[r],x,y,z) * (exp ( beta1 * log (getProb(mixture,r,(l + 1)) + 0.0001)));
             }
           }
           for(l = 0;l < (numberOfLabels - 1);l++) {
-            voxelProb[l] = getVoxelValue(labelLikelihoods[l],x,y,z);
+            voxelProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z);
             posteriorProb[l] = posteriorProb[l] * voxelProb[l];
           }
           putLabelValue(labels,x,y,z,maxArg(posteriorProb,numberOfLabels - 1) + 1);
@@ -385,7 +385,7 @@ int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask
             //  compute the second order term in the prior, non-normalized
             // this is the same for every region.
             for(l = 0;l < (numberOfLabels - 1);l++) {
-              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1],
+              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1].data(),
                                               x,y,z,distLookup,beta2);
 	      //  if(testverbose) cout << " " << gibbsProb[l];
             }
@@ -403,7 +403,7 @@ int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask
               normalize(voxelProb,numberOfLabels - 1);
               for(l = 0;l < (numberOfLabels - 1);l++) {
                 posteriorProb[l] = posteriorProb[l] 
-                                 + getVoxelValue(atlasImages[r],x,y,z) * voxelProb[l];
+                                 + getVoxelValue(&atlasImages[r],x,y,z) * voxelProb[l];
               }    
             }
 	    //  if(testverbose) {
@@ -415,7 +415,7 @@ int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask
             // now the prior probability is computed and it remains to 
             // multiply it with the likelihood term to get the posterior
             for(l = 0;l < (numberOfLabels - 1);l++) {
-              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(labelLikelihoods[l],x,y,z);
+              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(&labelLikelihoods[l],x,y,z);
             }
             // then just find the minimum posterior and update the label
             newLabel = maxArg(posteriorProb,(numberOfLabels - 1)) + 1;
@@ -442,7 +442,7 @@ int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask
   return(iteration);
 }
 
-int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
+int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
 {
   int i,j,k;
   int dimx,dimy,dimz;
@@ -501,12 +501,12 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
           }
           for(r = 0;r < numberOfRegions;r++) {
             for(l = 0;l < (numberOfLabels - 1);l++) {
-              posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(atlasImages[r],x,y,z) * (exp ( beta1 * log (getProb(mixture,r,(l + 1)) + 0.0001)));
+              posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(&atlasImages[r],x,y,z) * (exp ( beta1 * log (getProb(mixture,r,(l + 1)) + 0.0001)));
             }
           }
          
           for(l = 0;l < (numberOfLabels - 1);l++) {
-            float voxelProb = getVoxelValue(labelLikelihoods[l],x,y,z);
+            float voxelProb = getVoxelValue(&labelLikelihoods[l],x,y,z);
             posteriorProb[l] = posteriorProb[l] * voxelProb; // MAP init
 	    //  posteriorProb[l] = voxelProb[l]; // mlinit 
           }
@@ -549,7 +549,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
             //  compute the second order term in the prior, non-normalized
             // this is the same for every region.
             for(l = 0;l < (numberOfLabels - 1);l++) {
-              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1],
+              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1].data(),
                                               x,y,z,distLookup,beta2);
 	     
             }
@@ -567,7 +567,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
 	      //  normalize(voxelProb,numberOfLabels - 1); this is the difference between Markov and Gibbs
               for(l = 0;l < (numberOfLabels - 1);l++) {
                 posteriorProb[l] = posteriorProb[l] 
-                                 + getVoxelValue(atlasImages[r],x,y,z) * voxelProb[l];
+                                 + getVoxelValue(&atlasImages[r],x,y,z) * voxelProb[l];
               }    
             }
             
@@ -575,7 +575,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
             // now the prior probability is computed and it remains to 
             // multiply it with the likelihood term to get the posterior
             for(l = 0;l < (numberOfLabels - 1);l++) {
-              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(labelLikelihoods[l],x,y,z);
+              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(&labelLikelihoods[l],x,y,z);
             }
             // then just find the minimum posterior and update the label
             unsigned char newLabel = maxArg(posteriorProb,(numberOfLabels - 1)) + 1;
@@ -600,8 +600,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
 
 // Computes the ICM algorithm when the Atlas priors are used. Assumes that 
 // only the pure labels can exist. 
-
-int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, AnalyzeImage** tissueProbMaps, float beta1, float beta2, int maxIterations,bool verbose)
+int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, std::vector<AnalyzeImage> & tissueProbMaps, float beta1, float beta2, int maxIterations, bool verbose)
 {
   int x,y,z;
   int i,j,k,r;
@@ -670,12 +669,12 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
           // TODO: This does not seem to be used!!
           for(r = 0;r < numberOfRegions;r++) {
             for(l = 0;l < (pureLabels);l++) {
-              posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(atlasImages[r],x,y,z) * (exp ( beta1 * log (getVoxelValue(tissueProbMaps[l],x,y,z) + 0.0001)));
+              posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(&atlasImages[r],x,y,z) * (exp ( beta1 * log (getVoxelValue(&tissueProbMaps[l],x,y,z) + 0.0001)));
             }
           }
 	 
           for(l = 0;l < (pureLabels);l++) {
-	    voxelProb[l] = getVoxelValue(labelLikelihoods[l],x,y,z);
+	    voxelProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z);
 	    // posteriorProb[l] = posteriorProb[l] * voxelProb[l]; // MAP init
 	    posteriorProb[l] = voxelProb[l]; // mlinit 
 	  }
@@ -703,7 +702,7 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
             //  compute the second order term in the prior, non-normalized
             // this is the same for every region.
             for(l = 0;l < (pureLabels);l++) {
-              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1],
+              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1].data(),
                                               x,y,z,distLookup,beta2);
 	      
             }
@@ -716,12 +715,12 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
             // then compute region wise prior
             for(r = 0;r < numberOfRegions;r++) {
               for(l = 0;l < (pureLabels);l++) {
-                voxelProb[l] = ( gibbsProb[l] ) * (exp ( beta1 * log (getVoxelValue(tissueProbMaps[l],x,y,z) + 0.0001)));
+                voxelProb[l] = ( gibbsProb[l] ) * (exp ( beta1 * log (getVoxelValue(&tissueProbMaps[l],x,y,z) + 0.0001)));
               }
 	      //  normalize(voxelProb,numberOfLabels - 1); this is the difference between Markov and Gibbs
               for(l = 0;l < (pureLabels);l++) {
                 posteriorProb[l] = posteriorProb[l] 
-                                 + getVoxelValue(atlasImages[r],x,y,z) * voxelProb[l];
+                                 + getVoxelValue(&atlasImages[r],x,y,z) * voxelProb[l];
               }    
             }
             
@@ -729,7 +728,7 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
             // now the prior probability is computed and it remains to 
             // multiply it with the likelihood term to get the posterior
             for(l = 0;l < (pureLabels);l++) {
-              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(labelLikelihoods[l],x,y,z);
+              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(&labelLikelihoods[l],x,y,z);
             }
             // then just find the minimum posterior and update the label
             newLabel = maxArg(posteriorProb,(pureLabels)) + 1;
@@ -750,11 +749,10 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
  
   return(iteration);
 }
-
 // Computes the ICM algorithm when the 
 // only the pure labels can exist. 
 
-int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
+int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, float beta1, float beta2, int maxIterations,bool verbose)
 {
   int x,y,z;
   int i,j,k,r;
@@ -821,13 +819,13 @@ int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage
           }
           for(r = 0;r < numberOfRegions;r++) {
             for(l = 0;l < (pureLabels);l++) {
-               posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(atlasImages[r],x,y,z) * (exp ( beta1 * log (getProb(mixture,r,(l + 1)) + 0.0001)));
+               posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(&atlasImages[r],x,y,z) * (exp ( beta1 * log (getProb(mixture,r,(l + 1)) + 0.0001)));
             
             }
           }
 	 
           for(l = 0;l < (pureLabels);l++) {
-	    voxelProb[l] = getVoxelValue(labelLikelihoods[l],x,y,z);
+	    voxelProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z);
 	    posteriorProb[l] = posteriorProb[l] * voxelProb[l]; // MAP init
 	    //  posteriorProb[l] = voxelProb[l]; // mlinit 
 	  }
@@ -855,7 +853,7 @@ int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage
             //  compute the second order term in the prior, non-normalized
             // this is the same for every region.
             for(l = 0;l < (pureLabels);l++) {
-              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1],
+              gibbsProb[l] = secondOrderGibbs(l + 1,labels,mixture->patlas->mrfConstants[l + 1].data(),
                                               x,y,z,distLookup,beta2);
 	      
             }
@@ -875,14 +873,14 @@ int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage
 	      //  normalize(voxelProb,numberOfLabels - 1); this is the difference between Markov and Gibbs
               for(l = 0;l < (pureLabels);l++) {
                 posteriorProb[l] = posteriorProb[l] 
-                                 + getVoxelValue(atlasImages[r],x,y,z) * voxelProb[l];
+                                 + getVoxelValue(&atlasImages[r],x,y,z) * voxelProb[l];
               }    
             }            
 	    
             // now the prior probability is computed and it remains to 
             // multiply it with the likelihood term to get the posterior
             for(l = 0;l < (pureLabels);l++) {
-              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(labelLikelihoods[l],x,y,z);
+              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(&labelLikelihoods[l],x,y,z);
             }
             // then just find the minimum posterior and update the label
             newLabel = maxArg(posteriorProb,(pureLabels)) + 1;
@@ -905,8 +903,7 @@ int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage
 }
 
 
-
-int convertPVElabels(AnalyzeLabelImage* crispLabels, AnalyzeLabelImage* pveLabels, AnalyzeImage* img, AnalyzeImage** atlasImages, MixtureSpec* mixture)
+int convertPVElabels(AnalyzeLabelImage* crispLabels, AnalyzeLabelImage* pveLabels, AnalyzeImage* img, std::vector<AnalyzeImage> & atlasImages, MixtureSpec* mixture)
 {
  
 
@@ -941,7 +938,7 @@ int convertPVElabels(AnalyzeLabelImage* crispLabels, AnalyzeLabelImage* pveLabel
               likelihoodValue[n] = 0.0;
             }
             for(r = 0;r < mixture->patlas->n;r++) {
-              rprob = getVoxelValue(atlasImages[r],i,j,k);
+              rprob = getVoxelValue(&atlasImages[r],i,j,k);
               if(rprob > 0.001) {
 	        mean1 = getMu(mixture,r,pureLabel1);
 	        mean2 = getMu(mixture,r,pureLabel2);          
