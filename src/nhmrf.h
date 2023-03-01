@@ -163,12 +163,12 @@ inline void normalize(float* pval, char n)
 //  return( (char) index);
 // }
 
-inline void collectValuesFromImagePP(AnalyzeImage** imagePP,float* collectHere,
+inline void collectValuesFromImagePP(std::vector<AnalyzeImage> & imagePP,float* collectHere,
                                      int x, int y, int z,int n) 
 {
   int i;
   for(i = 0;i < n;i++) {
-    collectHere[i] =getVoxelValue(imagePP[i],x,y,z);
+    collectHere[i] =getVoxelValue(&imagePP[i],x,y,z);
   } 
 }
 
@@ -235,22 +235,22 @@ int readMixtureParameters(char* filename,AtlasSpec* atlas,MixtureSpec* mixture);
 int writeMixtureParameters(char* filename,AtlasSpec* atlas,MixtureSpec* mixture,bool overwrite);
 int parseParamsSvpaseg(SvpasegParameters* param,int n,char** arguments,AtlasSpec* atlas);
 
-int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* mask,AnalyzeImage** atlasImages,AnalyzeImage** labelLikelihoods);
+int computeVoxelLikelihood(MixtureSpec* mixture,AnalyzeImage* img,AnalyzeImage* mask,std::vector<AnalyzeImage> & atlasImages,std::vector<AnalyzeImage> & labelLikelihoods);
 
-int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1, float beta2,int maxIterations, bool verbose);
+int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, float beta1, float beta2,int maxIterations, bool verbose);
 
 // the next three functions do the same under 3 slightly different settings and 
 // they should be combined
 
-int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture, AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1,float beta2,int maxIterations, bool verbose );
+int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture, AnalyzeImage* mask, std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, float beta1,float beta2,int maxIterations, bool verbose );
 
-int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, AnalyzeImage** tissueProbMaps, float beta1, float beta2, int maxIterations, bool verbose);
+int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, std::vector<AnalyzeImage> & tissueProbMaps, float beta1, float beta2, int maxIterations, bool verbose);
 
-int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture, AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, float beta1,float beta2,int maxIterations, bool verbose );
+int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture, AnalyzeImage* mask,std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, float beta1,float beta2,int maxIterations, bool verbose );
 //{
 // };
  
-int convertPVElabels(AnalyzeLabelImage* crispLabels, AnalyzeLabelImage* pveLabels, AnalyzeImage* img, AnalyzeImage** atlasImages, MixtureSpec* mixture);
+int convertPVElabels(AnalyzeLabelImage* crispLabels, AnalyzeLabelImage* pveLabels, AnalyzeImage* img, std::vector<AnalyzeImage> & atlasImages, MixtureSpec* mixture);
 
 
 #endif
