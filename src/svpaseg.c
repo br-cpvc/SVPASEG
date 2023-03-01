@@ -212,7 +212,7 @@ int main(int argc, char** argv)
   }
   printLabelInfo(&atlas);
   cout << "Iterated Conditional modes..." << endl;
-  if(markov) {
+/*  if(markov) {
     itercount = computeMRF(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
   }
   else {
@@ -222,12 +222,12 @@ int main(int argc, char** argv)
     else { 
       if(atlas.onlyPureLabels) {
         itercount = computeGibbsPure(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
-      } 
-      else {
+     } 
+      else {*/
         itercount = computeGibbs(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
-      }
+     /* }
     }
-  }
+  }*/
   cout << "Iterations: " << itercount << endl;
   for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
     freeImage(labelLikelihoods[i]);
