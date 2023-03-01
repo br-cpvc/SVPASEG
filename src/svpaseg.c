@@ -175,7 +175,7 @@ int main(int argc, char** argv)
       return(10);
     }
   }
-  if(atlas.useTPM) {
+/*  if(atlas.useTPM) {
     TPMImages = new AnalyzeImage*[pureLabels];
     for(i = 0;i < pureLabels;i++) {
       TPMImages[i] = new AnalyzeImage;
@@ -191,7 +191,7 @@ int main(int argc, char** argv)
     //  return(11);   
     //  }
     // cout << "TPMs have been read and processed" << endl;
-  }
+  }*/
 
   cout << "Computing the ML classification" << endl; 
   labelLikelihoods = new AnalyzeImage*[atlas.numberOfLabels - 1];
@@ -253,7 +253,6 @@ int main(int argc, char** argv)
   }
 
   freeAtlasImages(&atlas,atlasImages);
-  if(atlas.useTPM) freeTPMimages(&atlas,TPMImages,pureLabels);
   freeImage(&img);
   freeImage(&mask);
   freeLabelImage(&pveLabelImg);
