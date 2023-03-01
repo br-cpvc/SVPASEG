@@ -101,29 +101,22 @@ bool readAtlasSpec(AtlasSpec* atlas,char* filename)
 
   // reserving the memory 
   if(atlas->n > 0) {
-    atlas->filenames = new char*[atlas->n];
-    atlas->regionnames = new char*[atlas->n]; 
+    atlas->filenames.resize(atlas->n);
+    atlas->regionnames.resize(atlas->n); 
     atlas->permittedLabels = new LabelList[atlas->n]; 
   }
  
-  atlas->labelnames = new char*[atlas->numberOfLabels];
+  atlas->labelnames.resize(atlas->n);
   atlas->labelTypes = new LabelType[atlas->numberOfLabels];
   atlas->mrfConstants = new float*[atlas->numberOfLabels];
-  atlas->TPMfilenames = new char*[atlas->numberOfLabels]; 
+  atlas->TPMfilenames.resize(atlas->n); 
 
-  for(i = 0;i < atlas->n;i++) {
-    atlas->regionnames[i] = new char[MAX_NAME_LEN];
-    atlas->filenames[i] = new char[MAX_NAME_LEN];
-  } 
- 
   for(i = 0;i < atlas->numberOfLabels;i++) {
-    atlas->labelnames[i] = new char[MAX_NAME_LEN];
     atlas->mrfConstants[i] = new float[atlas->numberOfLabels];
-    atlas->TPMfilenames[i] =  new char[MAX_NAME_LEN];
    }
 
   // set the background label info
-  strcpy(atlas->labelnames[0],"background");
+  atlas->labelnames[0] = std::string("background");
   atlas->labelTypes[0].pureLabel = true; // pure label;  
 
   if(probLimits && atlas->n == 0 ) {
@@ -139,10 +132,10 @@ bool readAtlasSpec(AtlasSpec* atlas,char* filename)
   // read the region info
   for(i = 0;i < atlas->n;i++) {
     ifile >> pstr;
-    strcpy(atlas->regionnames[i],pstr);
+    atlas->regionnames[i] = std::string(pstr);
     c = ifile.get();
     ifile >> pstr;
-    strcpy(atlas->filenames[i],pstr); 
+    atlas->filenames[i] = std::string(pstr); 
     if(probLimits) {
       atlas->regionLowProb[i][0] = 0.0;
       atlas->regionUpProb[i][0] = 0.0;
@@ -170,7 +163,7 @@ bool readAtlasSpec(AtlasSpec* atlas,char* filename)
   // read the label info
   for(i = 1;i< atlas->numberOfLabels;i++) {
     ifile >> pstr;
-    strcpy(atlas->labelnames[i],pstr);
+    atlas->labelnames[i] = std::string(pstr);
     ifile >> atlas->labelTypes[i].pureLabel;
     if(ifile.get() != '\n') {
       ifile >> atlas->labelTypes[i].mixed[0];
@@ -178,10 +171,10 @@ bool readAtlasSpec(AtlasSpec* atlas,char* filename)
     }
     if(useTPM && (atlas->labelTypes[i].pureLabel)) {
       ifile >> pstr;
-      strcpy(atlas->TPMfilenames[i - 1],pstr);
+      atlas->TPMfilenames[i - 1] = std::string(pstr);
     }
     else {
-      atlas->TPMfilenames[i - 1] = NULL;
+      atlas->TPMfilenames[i - 1] = std::string("");
     }
   }
   
@@ -294,19 +287,10 @@ void freeAtlas(AtlasSpec* atlas)
 {
   int i;  
 
-  for(i = 0;i < atlas->n;i++) {
-    delete[] atlas->regionnames[i];
-    delete[] atlas->filenames[i];
-  } 
-
   for(i = 0;i < atlas->numberOfLabels;i++) {
-    delete[] atlas->labelnames[i];
     delete[] atlas->mrfConstants[i];
    }
    // reserving the memory 
-  delete[] atlas->labelnames;
-  delete[] atlas->filenames;
-  delete[] atlas->regionnames; 
   delete[] atlas->labelTypes;
   delete[] atlas->mrfConstants;
   delete[] atlas->permittedLabels;  
@@ -332,7 +316,7 @@ int readAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages)
   // read images
   for(i = 0;i < atlas->n;i++) {
    // atlasImages[i] = new AnalyzeImage;
-    intstatus = readImage(atlas->filenames[i],atlasImages[i]);
+    intstatus = readImage(atlas->filenames[i].c_str(),atlasImages[i]);
     if(intstatus != 0) return(intstatus + i*100);
   }
   // check that the dimensions of the atlas match
@@ -476,7 +460,7 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
   for(i = 0;i < pureLabels;i++) {
    // atlasImages[i] = new AnalyzeImage;
     cout << i << endl;
-    intstatus = readImage(atlas->TPMfilenames[i],TPMImages[i]);
+    intstatus = readImage(atlas->TPMfilenames[i].c_str(),TPMImages[i]);
     if(intstatus != 0) return(intstatus + i*100);
   }
   cout << "TPM imagess read" << endl;
