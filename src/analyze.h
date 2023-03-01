@@ -147,6 +147,19 @@ struct AnalyzeImage {
   float* data; // Internal data presented using floats 
   int format;  // Image format ana, nii or unknown 14 OCT 10
   nifti_image nii_header; // Pointer to NIFTI header if the format is nifti 14 OCT 10
+  AnalyzeImage()
+  {
+	  this->data = NULL;
+  }
+
+  ~AnalyzeImage()
+  {
+	 if (this->data != NULL)
+	 {
+		 delete[] this->data;
+		 this->data = NULL;
+	 }
+  }
 } ; 
 
 struct AnalyzeLabelImage {
@@ -154,6 +167,19 @@ struct AnalyzeLabelImage {
   unsigned char* data; // If memory is valuable
   int format;  // Image format ana, nii or unknown 14 OCT 10
   nifti_image nii_header; // Pointer to NIFTI header if the format is nifti 14 OCT 10
+  AnalyzeLabelImage()
+  {
+	  this->data = NULL;
+  }
+
+  ~AnalyzeLabelImage()
+  {
+	  if (this->data != NULL)
+	  {
+		  delete[] this->data;
+		  this->data = NULL;
+	  }
+  }
 } ;
 
 void swapHeader(AnalyzeHeader &h);
@@ -355,12 +381,20 @@ inline void thresholdImage(AnalyzeImage* img,float val) {
 
 inline void freeImage(AnalyzeImage* img) 
 {
-  delete[] img->data;
+	if (img->data != NULL)
+	{
+	  delete[] img->data;
+	  img->data = NULL;
+	}
 };
 
 inline void freeLabelImage(AnalyzeLabelImage *img) 
 {
-  delete[] img->data;
+	if (img->data != NULL)
+	{
+		delete[] img->data;
+		img->data = NULL;
+	}
 };
 
 inline float getVoxelValue(AnalyzeImage* img,int x, int y, int z) 
