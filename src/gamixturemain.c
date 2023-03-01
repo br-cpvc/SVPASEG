@@ -304,8 +304,8 @@ int main(int argc,char** argv)
     return(7);
   }
   freeAtlasImages(&atlas,atlasImages);
-  freeImage(&img);
-  freeImage(&mask);
-  freeLabelImage(&mask2); 
+//   freeImage(&img);
+//   freeImage(&mask);
+//   freeLabelImage(&mask2); 
   return(0); 
 }
