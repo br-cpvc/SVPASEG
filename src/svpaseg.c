@@ -44,7 +44,7 @@ int main(int argc, char** argv)
   AnalyzeLabelImage pveLabelImg;
   std::vector<AnalyzeImage> atlasImages;
   std::vector<AnalyzeImage> labelLikelihoods;
-  AnalyzeImage** TPMImages;
+  std::vector<AnalyzeImage> TPMImages;
   MixtureSpec mixture;
   AtlasSpec atlas;
   SvpasegParameters params;
@@ -174,10 +174,8 @@ int main(int argc, char** argv)
     }
   }
 /*  if(atlas.useTPM) {
-    TPMImages = new AnalyzeImage*[pureLabels];
-    for(i = 0;i < pureLabels;i++) {
-      TPMImages[i] = new AnalyzeImage;
-    }
+		TPMImages.resize(pureLabels);
+
     intstatus = readTPMimages(&atlas,TPMImages,&mask,pureLabels);
     if(intstatus != 0) {
       cout << "Could not read TPMs. Error: " << intstatus << endl;
