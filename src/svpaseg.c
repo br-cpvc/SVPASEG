@@ -174,10 +174,8 @@ int main(int argc, char** argv)
     }
   }
 /*  if(atlas.useTPM) {
-    TPMImages = new AnalyzeImage*[pureLabels];
-    for(i = 0;i < pureLabels;i++) {
-      TPMImages[i] = new AnalyzeImage;
-    }
+		TPMImages.resize(pureLabels);
+
     intstatus = readTPMimages(&atlas,TPMImages,&mask,pureLabels);
     if(intstatus != 0) {
       cout << "Could not read TPMs. Error: " << intstatus << endl;
