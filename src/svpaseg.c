@@ -130,7 +130,7 @@ int main(int argc, char** argv)
  
 
   if(atlas.n > 0) {
-    atlasImages = new AnalyzeImage*[atlas.n];
+	atlasImages = (AnalyzeImage**) malloc(atlas.n*sizeof(AnalyzeImage*));
     for(i = 0;i < atlas.n;i++) {
       atlasImages[i] = new AnalyzeImage;
     }
@@ -194,7 +194,8 @@ int main(int argc, char** argv)
   }*/
 
   cout << "Computing the ML classification" << endl; 
-  labelLikelihoods = new AnalyzeImage*[atlas.numberOfLabels - 1];
+  //labelLikelihoods = new AnalyzeImage*[atlas.numberOfLabels - 1];
+  labelLikelihoods = (AnalyzeImage**) malloc((atlas.numberOfLabels - 1)*sizeof(AnalyzeImage*));
   for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
     labelLikelihoods[i] = new AnalyzeImage;
   }
@@ -229,9 +230,6 @@ int main(int argc, char** argv)
     }
   }*/
   cout << "Iterations: " << itercount << endl;
-  for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
-    freeImage(labelLikelihoods[i]);
-  }
   intstatus = convertPVElabels(&labelImg,&pveLabelImg,&img,atlasImages,&mixture);
   if(intstatus != 0) {
     cout << "Conversion to pure labels did not succeed" << endl;
