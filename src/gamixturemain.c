@@ -34,6 +34,7 @@
 // Version 2.0: The first public release of the SVPASEG. No changes to gamixture 
 
 #include "gamixture.h"
+#include "RFRandom.h"
 
 
 int main(int argc,char** argv)
@@ -147,6 +148,7 @@ int main(int argc,char** argv)
     atlasImages[0] = new AnalyzeImage;
     boolstatus = copyImage(&mask,atlasImages[0]);
   } 
+
   allocateMixtureSpec(&atlas,&mixture);
   
   // compute the number of pve labels and pure labels.
@@ -250,11 +252,105 @@ int main(int argc,char** argv)
         }
       }
     } 
-    gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
+
+    int popSize = params.restarts;
+    int popDim = 1;
+    int numberOfLabels = pureLabels + pveLabels;
+    // bgVar and mixtureSize when pop->dim == 1 as hardcoded below
+    int bgVar = 3;
+    int mixtureSize = 2*(popDim)*(numberOfLabels - pveLabels) + numberOfLabels;
+
+    bool deterministic = true;
+    bool use_MT19937 = true;
+    unsigned int seed = i+1;
+    if (!deterministic) seed = time(0);
+    srand(seed);
+    RFRandom kInitRNG;
+    kInitRNG.Seed(seed);
+
+    float* random_numbers_init = new float[popSize * mixtureSize];
+    for(int ps = 0;ps < popSize;ps++) {
+      for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+       if (use_MT19937)
+       random_numbers_init[ps*mixtureSize+bgj] = kInitRNG.GetFloatNormPositive();
+       else
+       random_numbers_init[ps*mixtureSize+bgj] = (float) rand() / RAND_MAX;
+      }
+    }
+
+    popSize = params.size;
+
+    unsigned int N = params.restarts;
+    float** random_numbers = new float*[N];
+    unsigned int*** randomUnsignedInts1 = new unsigned int**[N];
+    float*** randomFloats = new float**[N];
+    unsigned int*** randomUnsignedInts2 = new unsigned int**[N];
+
     for(n = 0;n < params.restarts;n++) {
+      unsigned int seed2 = (n+1)*117*(i+1);
+      if (!deterministic) seed2 = time(0);
+      RFRandom kRNG;
+      kRNG.Seed(seed2);
+      srand(seed2);
+      random_numbers[n] = new float[popSize * mixtureSize];
+      for(int ps = 0;ps < popSize;ps++) {
+        for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+          if (use_MT19937)
+          random_numbers[n][ps*mixtureSize+bgj] = kRNG.GetFloatNormPositive();
+          else
+          random_numbers[n][ps*mixtureSize+bgj] = (float) rand() / RAND_MAX;
+        }
+      }
+      unsigned int M = params.maxGenerations;
+      randomUnsignedInts1[n] = new unsigned int*[M];
+      randomFloats[n] = new float*[M];
+      randomUnsignedInts2[n] = new unsigned int*[M];
+      for(int itercount = 0;itercount < M;itercount++) {
+        randomUnsignedInts1[n][itercount] = new unsigned int[popSize*2];
+        int elitism = 1;
+        //if (!deterministic) srand(time(0));
+        for(int ps = elitism;ps < popSize;ps++) {
+          if (use_MT19937) {
+          randomUnsignedInts1[n][itercount][ps*2] = kRNG.Get() % popSize;
+          randomUnsignedInts1[n][itercount][ps*2+1] = kRNG.Get() % popSize;
+          } else {
+          randomUnsignedInts1[n][itercount][ps*2] = rand() % popSize;
+          randomUnsignedInts1[n][itercount][ps*2+1] = rand() % popSize;
+          }
+        }
+
+        randomFloats[n][itercount] = new float[popSize * mixtureSize];
+        randomUnsignedInts2[n][itercount] = new unsigned int[popSize*2];
+        int leaveAlone = (int) floor( (1 - params.xoverRate) * (popSize));
+        //if (!deterministic) srand(time(0));
+        for(int ps = elitism + leaveAlone;ps < popSize;ps++) {
+          if (use_MT19937) {
+          randomUnsignedInts2[n][itercount][ps*2] = kRNG.Get() % popSize;
+          randomUnsignedInts2[n][itercount][ps*2+1] = kRNG.Get() % popSize;
+          } else {
+          randomUnsignedInts2[n][itercount][ps*2] = rand() % popSize;
+          randomUnsignedInts2[n][itercount][ps*2+1] = rand() % popSize;
+          }
+          for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+            if (use_MT19937)
+            randomFloats[n][itercount][ps*mixtureSize+bgj] = kRNG.GetFloatNormPositive();
+            else
+            randomFloats[n][itercount][ps*mixtureSize+bgj] = (float) rand()/RAND_MAX;
+          }
+        }
+      }
+    }
+
+    gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels, pveLabels,
+		atlas.labelTypes.data(),lowLimit,upLimit, random_numbers_init, params.equalVar);
+    delete[] random_numbers_init;
+
+    for(n = 0;n < params.restarts;n++) {
+      Population pop, selPop;
       gaInitializePopulation(&pop,params.size,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
+			atlas.labelTypes.data(),lowLimit,upLimit, random_numbers[n], params.equalVar);
+      delete[] random_numbers[n];
+
       gaSortPopulation(&pop,1);
       gaEvaluate(&pop,&hatf);
       gaReorder(&pop);
@@ -262,8 +358,11 @@ int main(int argc,char** argv)
       terminate = false;
       itercount = 0;
       while((!terminate) && (itercount < params.maxGenerations)) {
-        gaTournamentSelection(&selPop,&pop,1);
-        gaBLX(&pop,&selPop,params.xoverRate,1,params.alpha,lowLimit,upLimit,params.equalVar); 
+
+      gaTournamentSelection(&selPop,&pop,1,randomUnsignedInts1[n][itercount]);
+
+      gaBLX(&pop,&selPop,params.xoverRate,1,params.alpha,lowLimit,upLimit,randomUnsignedInts2[n][itercount],randomFloats[n][itercount],params.equalVar);
+
         if(params.sortPop) {
           gaSortPopulation(&pop,1);
         }
@@ -271,6 +370,11 @@ int main(int argc,char** argv)
         gaReorder(&pop);
         terminate = gaTerminate(&pop,params.terminationThr);
         itercount++;
+      }
+      for(unsigned int itercount2=0; itercount2 < params.maxGenerations; itercount2++) {
+        delete[] randomUnsignedInts1[n][itercount2];
+        delete[] randomFloats[n][itercount2];
+        delete[] randomUnsignedInts2[n][itercount2];
       }
       if(!(params.sortPop)) gaSortPopulation(&pop,1); 
       cout << "GA converged after " << itercount << " iterations." << endl;
@@ -285,7 +389,15 @@ int main(int argc,char** argv)
         gaSetProb(&popRuns,n,j + pureLabels,gaGetProb(&pop,0,j + pureLabels));
       }
       popRuns.energies[n] = pop.energies[0];
+
+      delete[] randomUnsignedInts1[n];
+      delete[] randomFloats[n];
+      delete[] randomUnsignedInts2[n];
     }
+    delete[] random_numbers;
+    delete[] randomUnsignedInts1;
+    delete[] randomFloats;
+    delete[] randomUnsignedInts2;
     if( params.restarts > 1) gaReorder(&popRuns); 
     // convert the best individual to mixtureSpec
     for(j = 0;j < pureLabels;j++) {
