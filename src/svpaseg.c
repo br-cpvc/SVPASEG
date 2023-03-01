@@ -133,11 +133,7 @@ int main(int argc, char** argv)
 
   if(atlas.n > 0) {
     //atlasImages = new AnalyzeImage*[atlas.n];
-	//atlasImages = (AnalyzeImage**) malloc(atlas.n*sizeof(AnalyzeImage*));
 	atlasImages.resize(atlas.n);
-/*    for(i = 0;i < atlas.n;i++) {
-      atlasImages[i] = new AnalyzeImage;
-    }*/
     intstatus = readAtlasImages(&atlas,atlasImages);
     if(intstatus != 0) {
       cout << "Could not read probabilistic atlas. Error: " << intstatus << endl;
@@ -157,7 +153,6 @@ int main(int argc, char** argv)
     mixture.patlas->n = 1;
    
     atlasImages.resize(1);
-    //atlasImages[0] = new AnalyzeImage;
     boolstatus = copyImage(&mask,&atlasImages[0]);
   }  
   
@@ -199,10 +194,6 @@ int main(int argc, char** argv)
 
   cout << "Computing the ML classification" << endl; 
   //labelLikelihoods = new AnalyzeImage*[atlas.numberOfLabels - 1];
-  //labelLikelihoods = (AnalyzeImage**) malloc((atlas.numberOfLabels - 1)*sizeof(AnalyzeImage*));
-  /*for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
-    labelLikelihoods[i] = new AnalyzeImage;
-  }*/
   labelLikelihoods.resize(atlas.numberOfLabels - 1);
   for(i = 0;i < (atlas.numberOfLabels - 1);i++) {
     if(!(newImage(&labelLikelihoods[i],&img))) {
@@ -261,14 +252,8 @@ int main(int argc, char** argv)
     }
   }
 
-  //freeAtlasImages(&atlas,atlasImages);
 //  if(atlas.useTPM) freeTPMimages(&atlas,TPMImages,pureLabels);
 
-  /*  freeImage(&img);
-  freeImage(&mask);
-  freeLabelImage(&pveLabelImg);
-  freeLabelImage(&labelImg);  
- */
   cout << "Images freed" << endl;
   
  
