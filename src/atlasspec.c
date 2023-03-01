@@ -442,6 +442,7 @@ bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask)
 
 }
 
+/*
 int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask, int pureLabels)
 {
 
@@ -557,3 +558,4 @@ void freeTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, int pureLabels)
     delete[] TPMImages[i]->data;
   }
 }
+*/
