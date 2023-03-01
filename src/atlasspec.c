@@ -578,7 +578,7 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
   for(i = 0;i < pureLabels;i++) {
    // atlasImages[i] = new AnalyzeImage;
     cout << i << endl;
-    intstatus = readImage(atlas->TPMfilenames[i],TPMImages[i]);
+    intstatus = readImage(atlas->TPMfilenames[i].c_str(),TPMImages[i]);
     if(intstatus != 0) return(intstatus + i*100);
   }
   cout << "TPM imagess read" << endl;
