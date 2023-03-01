@@ -173,7 +173,8 @@ int main(int argc, char** argv)
       return(10);
     }
   }
-/*  if(atlas.useTPM) {
+
+  if(atlas.useTPM) {
 		TPMImages.resize(pureLabels);
 
     intstatus = readTPMimages(&atlas,TPMImages,&mask,pureLabels);
@@ -187,7 +188,7 @@ int main(int argc, char** argv)
     //  return(11);   
     //  }
     // cout << "TPMs have been read and processed" << endl;
-  }*/
+	}
 
   cout << "Computing the ML classification" << endl; 
   //labelLikelihoods = new AnalyzeImage*[atlas.numberOfLabels - 1];
@@ -209,19 +210,20 @@ int main(int argc, char** argv)
 /*  if(markov) {
     itercount = computeMRF(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
   }
-  else {
+  else {*/
     if(atlas.useTPM) {
       itercount = computeGibbsAtlas(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, TPMImages, params.beta1, params.beta2,50,true);
     }
     else { 
+      /*
       if(atlas.onlyPureLabels) {
         itercount = computeGibbsPure(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
      } 
       else {*/
         itercount = computeGibbs(&pveLabelImg,&mixture,&mask,labelLikelihoods,atlasImages, params.beta1, params.beta2,50,true);
      /* }
-    }
-  }*/
+     } */
+  }
   cout << "Iterations: " << itercount << endl;
   intstatus = convertPVElabels(&labelImg,&pveLabelImg,&img,atlasImages,&mixture);
   if(intstatus != 0) {
