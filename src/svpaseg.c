@@ -243,7 +243,7 @@ int main(int argc, char** argv)
   }  
 
   //TODO: this return statement was put in because of a segmentation fault. dig into this
-  return(0);
+  exit(0);
 
   if(params.writePveLabelImage) {
     intstatus = writeLabelImage(params.pveLabelImage,&pveLabelImg,clobber);
