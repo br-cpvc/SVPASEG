@@ -608,8 +608,6 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
       }
     }       
   }
- 
-  freeImage(&psum);
 
    if((TPMImages[0]->header.x_dim != mask->header.x_dim) ||(TPMImages[0]->header.y_dim != mask->header.y_dim) 
        || (TPMImages[0]->header.z_dim != mask->header.z_dim)) {
@@ -662,7 +660,6 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
      }
    }
    // cout << "everything ok" << endl;
-   freeImage(&probmask);
 
 
   return(0);
