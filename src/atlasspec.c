@@ -79,23 +79,23 @@ bool readAtlasSpec(AtlasSpec* atlas,char* filename)
   ifile >> atlas->numberOfLabels;
  
   if(!probLimits) {
-    atlas->regionLowProb = NULL;
-    atlas->regionUpProb = NULL;
+    atlas->regionLowProb.clear();
+    atlas->regionUpProb.clear();
   }
   else {
     if(atlas->n > 0) {
-      atlas->regionLowProb = new float*[atlas->n];
-      atlas->regionUpProb  = new float*[atlas->n];
+      atlas->regionLowProb.resize(atlas->n);
+      atlas->regionUpProb.resize(atlas->n);
       for(i = 0;i < atlas->n;i++) {
-        atlas->regionLowProb[i] = new float[atlas->numberOfLabels];
-        atlas->regionUpProb[i]  = new float[atlas->numberOfLabels];
+        atlas->regionLowProb[i].resize(atlas->numberOfLabels);
+        atlas->regionUpProb[i].resize(atlas->numberOfLabels);
       }
     }
     else { 
-      atlas->regionLowProb = new float*[1];
-      atlas->regionUpProb  = new float*[1];
-      atlas->regionLowProb[0] = new float[atlas->numberOfLabels];
-      atlas->regionUpProb[0]  = new float[atlas->numberOfLabels];
+      atlas->regionLowProb.resize(1);
+      atlas->regionUpProb.resize(1);
+      atlas->regionLowProb[0].resize(atlas->numberOfLabels);
+      atlas->regionUpProb[0].resize(atlas->numberOfLabels);
     }
   }   
 
@@ -103,16 +103,16 @@ bool readAtlasSpec(AtlasSpec* atlas,char* filename)
   if(atlas->n > 0) {
     atlas->filenames.resize(atlas->n);
     atlas->regionnames.resize(atlas->n); 
-    atlas->permittedLabels = new LabelList[atlas->n]; 
+    atlas->permittedLabels.resize(atlas->n); 
   }
  
   atlas->labelnames.resize(atlas->n);
-  atlas->labelTypes = new LabelType[atlas->numberOfLabels];
-  atlas->mrfConstants = new float*[atlas->numberOfLabels];
+  atlas->labelTypes.resize(atlas->numberOfLabels);
+  atlas->mrfConstants.resize(atlas->numberOfLabels);
   atlas->TPMfilenames.resize(atlas->n); 
 
   for(i = 0;i < atlas->numberOfLabels;i++) {
-    atlas->mrfConstants[i] = new float[atlas->numberOfLabels];
+    atlas->mrfConstants[i].resize(atlas->numberOfLabels);
    }
 
   // set the background label info
@@ -283,19 +283,9 @@ int writeAtlasSpec(AtlasSpec* atlas,char* filename, char atlasType, bool overwri
 }
 
 
-void freeAtlas(AtlasSpec* atlas) 
-{
-  int i;  
-
-  for(i = 0;i < atlas->numberOfLabels;i++) {
-    delete[] atlas->mrfConstants[i];
-   }
-   // reserving the memory 
-  delete[] atlas->labelTypes;
-  delete[] atlas->mrfConstants;
-  delete[] atlas->permittedLabels;  
-
-}
+// void freeAtlas(AtlasSpec* atlas) 
+// {
+// }
 
 // reads the images in the atlas and ensures that each
 // voxelsums  are equal to the unity
@@ -365,6 +355,70 @@ int readAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages)
   return(0);
 }
 
+int readAtlasImages(AtlasSpec* atlas,std::vector<AnalyzeImage> & atlasImages)
+{
+  int i,j,imgsize;
+  int intstatus;
+  int dimx,dimy,dimz;
+  float probsum;
+  AnalyzeImage psum;
+  bool filter = false;
+
+  // reserve memory
+ // atlasImages = new AnalyzeImage*[atlas->n];
+
+  // read images
+  for(i = 0;i < atlas->n;i++) {
+   // atlasImages[i] = new AnalyzeImage;
+    intstatus = readImage(atlas->filenames[i].c_str(),&atlasImages[i]);
+    if(intstatus != 0) return(intstatus + i*100);
+  }
+  // check that the dimensions of the atlas match
+  dimx = atlasImages[0].header.x_dim;
+  dimy = atlasImages[0].header.y_dim; 
+  dimz = atlasImages[0].header.z_dim;
+  for(i = 1;i < atlas->n;i++) {
+    if(dimx != atlasImages[i].header.x_dim) return(5 + i*10);
+    if(dimy != atlasImages[i].header.y_dim) return(5 + i*10);
+    if(dimz != atlasImages[i].header.z_dim) return(5 + i*10);
+  }
+  // make sure that every voxel sums to the unity in prob atlas
+  imgsize = dimx*dimy*dimz;
+  copyImage(&atlasImages[0],&psum);
+
+  for(i = 0;i < imgsize;i++) {
+    probsum = 0.0;
+    for(j = 0;j < atlas->n;j++) {
+      probsum = probsum + atlasImages[j].data[i];
+    } 
+    psum.data[i] = probsum;
+    if(fabs(probsum) > 0.0001) {
+      for(j = 0;j < atlas->n;j++) {
+        atlasImages[j].data[i] =  atlasImages[j].data[i]/probsum;
+      }
+    }       
+  }
+  if(filter) {
+   for(i = 0;i < atlas->n;i++) {
+      averageFilterZeros(&atlasImages[i],&psum,0.0001,1);
+    }
+    for(i = 0;i < imgsize;i++) {
+      probsum = 0.0;
+      for(j = 0;j < atlas->n;j++) {
+        probsum = probsum + atlasImages[j].data[i];
+      } 
+   
+      if(fabs(probsum) > 0.0001) {
+        for(j = 0;j < atlas->n;j++) {
+          atlasImages[j].data[i] =  atlasImages[j].data[i]/probsum;
+        }
+      }       
+    } 
+  }   
+  freeImage(&psum);
+  return(0);
+}
+
 // releases memory allocated by readAtlasImages
 
 void freeAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages)
@@ -382,17 +436,17 @@ void freeAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages)
 // atlas images should be normalized to sum to the unity.
 
  
-bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask)
+bool maskAtlas(AtlasSpec* atlas, std::vector<AnalyzeImage> & atlasImages,AnalyzeImage* mask)
 {
     AnalyzeImage probmask;
     int i,j,k,l,ci,cj,ck,imgsize;
     
     
    // check that atlas images correspond to the mask image
-   if((atlasImages[0]->header.x_dim != mask->header.x_dim) ||(atlasImages[0]->header.y_dim != mask->header.y_dim) 
-       || (atlasImages[0]->header.z_dim != mask->header.z_dim)) {
-     if((atlasImages[0]->header.x_dim < mask->header.x_dim) ||(atlasImages[0]->header.y_dim < mask->header.y_dim) 
-	|| (atlasImages[0]->header.z_dim <  mask->header.z_dim)) {
+   if((atlasImages[0].header.x_dim != mask->header.x_dim) ||(atlasImages[0].header.y_dim != mask->header.y_dim) 
+       || (atlasImages[0].header.z_dim != mask->header.z_dim)) {
+     if((atlasImages[0].header.x_dim < mask->header.x_dim) ||(atlasImages[0].header.y_dim < mask->header.y_dim) 
+	|| (atlasImages[0].header.z_dim <  mask->header.z_dim)) {
        cout << "ERROR: Atlas dimensions do not match to the maskfile dimensions" << endl;
        return(false);
      }
@@ -400,13 +454,13 @@ bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask)
        cout << "Warning:  Atlas dimensions do not match to the maskfile dimensions -> continuing but check the results" << endl;
      }
    }
-   newImage(&probmask,atlasImages[0]);
+   newImage(&probmask,&atlasImages[0]);
    cout << "probmask created ok" << endl;
-   imgsize = (atlasImages[0]->header.x_dim)*(atlasImages[0]->header.y_dim)*(atlasImages[0]->header.z_dim); 
+   imgsize = (atlasImages[0].header.x_dim)*(atlasImages[0].header.y_dim)*(atlasImages[0].header.z_dim); 
    for(i = 0;i < imgsize;i++) {
      probmask.data[i] = 0;
      for(j = 0;j < atlas->n;j++) {
-       probmask.data[i] = probmask.data[i] + atlasImages[j]->data[i];
+       probmask.data[i] = probmask.data[i] + atlasImages[j].data[i];
      }
    }
   
@@ -423,14 +477,14 @@ bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask)
              return(false);
            }
            for(l = 0;l < atlas->n;l++) {
-              putVoxelValue(atlasImages[l],i,j,k,getVoxelValue(atlasImages[l],ci,cj,ck));
+              putVoxelValue(&atlasImages[l],i,j,k,getVoxelValue(&atlasImages[l],ci,cj,ck));
            }
          }
          
          // then remove those parts of the atlas that are not necessary
          if(getVoxelValue(mask,i,j,k) < 0.5) {
            for(l = 0;l < atlas->n;l++) {
-              putVoxelValue(atlasImages[l],i,j,k,0.0);
+              putVoxelValue(&atlasImages[l],i,j,k,0.0);
            }
          }
        }
@@ -439,10 +493,68 @@ bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask)
    // cout << "everything ok" << endl;
    freeImage(&probmask);
    return(true);
-
 }
 
-int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask, int pureLabels)
+bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages, AnalyzeImage* mask)
+{
+	AnalyzeImage probmask;
+	int i,j,k,l,ci,cj,ck,imgsize;
+
+
+	// check that atlas images correspond to the mask image
+	if((atlasImages[0]->header.x_dim != mask->header.x_dim) ||(atlasImages[0]->header.y_dim != mask->header.y_dim) 
+		|| (atlasImages[0]->header.z_dim != mask->header.z_dim)) {
+			if((atlasImages[0]->header.x_dim < mask->header.x_dim) ||(atlasImages[0]->header.y_dim < mask->header.y_dim) 
+				|| (atlasImages[0]->header.z_dim <  mask->header.z_dim)) {
+					cout << "ERROR: Atlas dimensions do not match to the maskfile dimensions" << endl;
+					return(false);
+			}
+			else {
+				cout << "Warning:  Atlas dimensions do not match to the maskfile dimensions -> continuing but check the results" << endl;
+			}
+	}
+	newImage(&probmask,atlasImages[0]);
+	cout << "probmask created ok" << endl;
+	imgsize = (atlasImages[0]->header.x_dim)*(atlasImages[0]->header.y_dim)*(atlasImages[0]->header.z_dim); 
+	for(i = 0;i < imgsize;i++) {
+		probmask.data[i] = 0;
+		for(j = 0;j < atlas->n;j++) {
+			probmask.data[i] = probmask.data[i] + atlasImages[j]->data[i];
+		}
+	}
+
+
+	cout << "probmask generated" << endl;
+	for(i = 0;i < mask->header.x_dim;i++ ) {
+		for(j = 0;j < mask->header.y_dim;j++ ) {
+			for(k = 0;k < mask->header.z_dim;k++ ) {
+				// first check if the atlas spatially cover the mask
+				if((getVoxelValue(mask,i,j,k) > 0.5) && (getVoxelValue(&probmask,i,j,k) < 0.5) ) { 
+					//  cout << "*";
+					if(findClosestNonZero(&probmask,i,j,k,&ci,&cj,&ck,0.5) == false) {
+						cout << "here: " << i  << " " << j << " " << k<< endl;
+						return(false);
+					}
+					for(l = 0;l < atlas->n;l++) {
+						putVoxelValue(atlasImages[l],i,j,k,getVoxelValue(atlasImages[l],ci,cj,ck));
+					}
+				}
+
+				// then remove those parts of the atlas that are not necessary
+				if(getVoxelValue(mask,i,j,k) < 0.5) {
+					for(l = 0;l < atlas->n;l++) {
+						putVoxelValue(atlasImages[l],i,j,k,0.0);
+					}
+				}
+			}
+		}
+	}
+	// cout << "everything ok" << endl;
+	freeImage(&probmask);
+	return(true);
+}
+
+int readTPMimages(AtlasSpec* atlas,std::vector<AnalyzeImage>& TPMImages, AnalyzeImage* mask, int pureLabels)
 {
 
   int i,j,k,l,ci,cj,ck,imgsize;
@@ -460,42 +572,40 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
   for(i = 0;i < pureLabels;i++) {
    // atlasImages[i] = new AnalyzeImage;
     cout << i << endl;
-    intstatus = readImage(atlas->TPMfilenames[i].c_str(),TPMImages[i]);
+    intstatus = readImage(atlas->TPMfilenames[i].c_str(),&TPMImages[i]);
     if(intstatus != 0) return(intstatus + i*100);
   }
   cout << "TPM imagess read" << endl;
   // check that the dimensions of the atlas match
-  dimx = TPMImages[0]->header.x_dim;
-  dimy = TPMImages[0]->header.y_dim; 
-  dimz = TPMImages[0]->header.z_dim;
+  dimx = TPMImages[0].header.x_dim;
+  dimy = TPMImages[0].header.y_dim; 
+  dimz = TPMImages[0].header.z_dim;
   for(i = 1;i < pureLabels;i++) {
-    if(dimx != TPMImages[i]->header.x_dim) return(5 + i*10);
-    if(dimy != TPMImages[i]->header.y_dim) return(5 + i*10);
-    if(dimz != TPMImages[i]->header.z_dim) return(5 + i*10);
+    if(dimx != TPMImages[i].header.x_dim) return(5 + i*10);
+    if(dimy != TPMImages[i].header.y_dim) return(5 + i*10);
+    if(dimz != TPMImages[i].header.z_dim) return(5 + i*10);
   }
   // make sure that every voxel sums to the unity in prob atlas
   imgsize = dimx*dimy*dimz;
-  copyImage(TPMImages[0],&psum);
+  copyImage(&TPMImages[0],&psum);
 
   for(i = 0;i < imgsize;i++) {
     probsum = 0.0;
     for(j = 0;j < pureLabels;j++) {
-      probsum = probsum + TPMImages[j]->data[i];
+      probsum = probsum + TPMImages[j].data[i];
     } 
     psum.data[i] = probsum;
     if(fabs(probsum) > 0.0001) {
       for(j = 0;j < pureLabels;j++) {
-        TPMImages[j]->data[i] =  TPMImages[j]->data[i]/probsum;
+        TPMImages[j].data[i] =  TPMImages[j].data[i]/probsum;
       }
     }       
   }
- 
-  freeImage(&psum);
 
-   if((TPMImages[0]->header.x_dim != mask->header.x_dim) ||(TPMImages[0]->header.y_dim != mask->header.y_dim) 
-       || (TPMImages[0]->header.z_dim != mask->header.z_dim)) {
-     if((TPMImages[0]->header.x_dim < mask->header.x_dim) ||(TPMImages[0]->header.y_dim < mask->header.y_dim) 
-	|| (TPMImages[0]->header.z_dim <  mask->header.z_dim)) {
+   if((TPMImages[0].header.x_dim != mask->header.x_dim) ||(TPMImages[0].header.y_dim != mask->header.y_dim) 
+       || (TPMImages[0].header.z_dim != mask->header.z_dim)) {
+     if((TPMImages[0].header.x_dim < mask->header.x_dim) ||(TPMImages[0].header.y_dim < mask->header.y_dim) 
+	|| (TPMImages[0].header.z_dim <  mask->header.z_dim)) {
        cout << "ERROR: TPM dimensions do not match to the maskfile dimensions" << endl;
        return(28);
      }
@@ -503,13 +613,13 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
        cout << "Warning:  TPM dimensions do not match to the maskfile dimensions -> continuing but check the results" << endl;
      }
    }
-   newImage(&probmask,TPMImages[0]);
+   newImage(&probmask,&TPMImages[0]);
    
  
    for(i = 0;i < imgsize;i++) {
      probmask.data[i] = 0;
      for(j = 0;j < pureLabels;j++) {
-       probmask.data[i] = probmask.data[i] + TPMImages[j]->data[i];
+       probmask.data[i] = probmask.data[i] + TPMImages[j].data[i];
      }
    }
   
@@ -523,12 +633,12 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
 	   //  cout << "*";
            if(findClosestNonZero(&probmask,i,j,k,&ci,&cj,&ck,0.5) == false) {
              for(l = 0;l < pureLabels;l++) {
-               putVoxelValue(TPMImages[l],i,j,k,0.333333333);
+               putVoxelValue(&TPMImages[l],i,j,k,0.333333333);
              }
            }	     
 	   else {
              for(l = 0;l < pureLabels;l++) {
-                putVoxelValue(TPMImages[l],i,j,k,getVoxelValue(TPMImages[l],ci,cj,ck));
+                putVoxelValue(&TPMImages[l],i,j,k,getVoxelValue(&TPMImages[l],ci,cj,ck));
              }
            }
          }
@@ -536,14 +646,13 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
          // then remove those parts of the atlas that are not necessary
          if(getVoxelValue(mask,i,j,k) < 0.5) {
            for(l = 0;l < pureLabels;l++) {
-              putVoxelValue(TPMImages[l],i,j,k,0.0);
+              putVoxelValue(&TPMImages[l],i,j,k,0.0);
            }
          }
        }
      }
    }
    // cout << "everything ok" << endl;
-   freeImage(&probmask);
 
 
   return(0);
