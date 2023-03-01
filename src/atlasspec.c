@@ -556,7 +556,6 @@ bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages, AnalyzeImage* mask)
 			}
 		}
 	}
-	// cout << "everything ok" << endl;
 	freeImage(&probmask);
 	return(true);
 }
@@ -659,8 +658,6 @@ int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask,
        }
      }
    }
-   // cout << "everything ok" << endl;
-
 
   return(0);
 }
