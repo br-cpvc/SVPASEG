@@ -589,7 +589,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
 
 // Computes the ICM algorithm when the Atlas priors are used. Assumes that 
 // only the pure labels can exist. 
-int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, AnalyzeImage** tissueProbMaps, float beta1, float beta2, int maxIterations,bool verbose)
+int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,std::vector<AnalyzeImage> & labelLikelihoods, std::vector<AnalyzeImage> & atlasImages, std::vector<AnalyzeImage> & tissueProbMaps, float beta1, float beta2, int maxIterations, bool verbose)
 {
   int x,y,z;
   int i,j,k,r;
@@ -658,7 +658,7 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
           // TODO: This does not seem to be used!!
           for(r = 0;r < numberOfRegions;r++) {
             for(l = 0;l < (pureLabels);l++) {
-              posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(atlasImages[r],x,y,z) * (exp ( beta1 * log (getVoxelValue(tissueProbMaps[l],x,y,z) + 0.0001)));
+              posteriorProb[l] = posteriorProb[l]  +  getVoxelValue(&atlasImages[r],x,y,z) * (exp ( beta1 * log (getVoxelValue(&tissueProbMaps[l],x,y,z) + 0.0001)));
             }
           }
 */
@@ -666,7 +666,7 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
           for(l = 0;l < (pureLabels);l++) {
 	    // posteriorProb[l] = posteriorProb[l] * voxelProb[l]; // MAP init
 	    // posteriorProb[l] = voxelProb[l]; // mlinit 
-	    posteriorProb[l] = getVoxelValue(labelLikelihoods[l],x,y,z); // mlinit
+	    posteriorProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z); // mlinit
 	  }
           putLabelValue(labels,x,y,z,maxArg(posteriorProb,pureLabels) + 1);
 	  
@@ -705,12 +705,12 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
             // then compute region wise prior
             for(r = 0;r < numberOfRegions;r++) {
               for(l = 0;l < (pureLabels);l++) {
-                voxelProb[l] = ( gibbsProb[l] ) * (exp ( beta1 * log (getVoxelValue(tissueProbMaps[l],x,y,z) + 0.0001)));
+                voxelProb[l] = ( gibbsProb[l] ) * (exp ( beta1 * log (getVoxelValue(&tissueProbMaps[l],x,y,z) + 0.0001)));
               }
 	      //  normalize(voxelProb,numberOfLabels - 1); this is the difference between Markov and Gibbs
               for(l = 0;l < (pureLabels);l++) {
                 posteriorProb[l] = posteriorProb[l] 
-                                 + getVoxelValue(atlasImages[r],x,y,z) * voxelProb[l];
+                                 + getVoxelValue(&atlasImages[r],x,y,z) * voxelProb[l];
               }    
             }
             
@@ -718,7 +718,7 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
             // now the prior probability is computed and it remains to 
             // multiply it with the likelihood term to get the posterior
             for(l = 0;l < (pureLabels);l++) {
-              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(labelLikelihoods[l],x,y,z);
+              posteriorProb[l] =  posteriorProb[l] * getVoxelValue(&labelLikelihoods[l],x,y,z);
             }
             // then just find the minimum posterior and update the label
             newLabel = maxArg(posteriorProb,(pureLabels)) + 1;
