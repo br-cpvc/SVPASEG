@@ -80,8 +80,8 @@ void freeAtlas(AtlasSpec* atlas);
 int readAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages); 
 void freeAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages);
 bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask);
-int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask ,int pureLabels);
-void freeTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, int pureLabels);
+//int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask ,int pureLabels);
+//void freeTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, int pureLabels);
 // int processTPMimages(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask, int pureLabels);
 
 
