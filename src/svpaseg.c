@@ -252,11 +252,6 @@ int main(int argc, char** argv)
     }
   }
 
-//  if(atlas.useTPM) freeTPMimages(&atlas,TPMImages,pureLabels);
-
-  cout << "Images freed" << endl;
-  
- 
   return(0);
   // think about freeing the rest of the images as well
 
