@@ -589,7 +589,6 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
 
 // Computes the ICM algorithm when the Atlas priors are used. Assumes that 
 // only the pure labels can exist. 
-/*
 int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask,AnalyzeImage** labelLikelihoods, AnalyzeImage** atlasImages, AnalyzeImage** tissueProbMaps, float beta1, float beta2, int maxIterations,bool verbose)
 {
   int x,y,z;
@@ -740,7 +739,6 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
  
   return(iteration);
 }
-*/
 // Computes the ICM algorithm when the 
 // only the pure labels can exist. 
 /*
