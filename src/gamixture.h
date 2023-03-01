@@ -54,6 +54,8 @@ using namespace std;
 #define DEFAULT_PARZENSIGMA     1
 #define DEFAULT_EQUALVAR        0
 #define DEFAULT_RESTARTS        10
+#define DEFAULT_DETERMINISTIC   1
+#define DEFAULT_RANDOM          1
 
 
 struct SortStruct {  // I know this is clumsy, but couldn't come up with a better alternative in ten minutes or so.... 
@@ -84,6 +86,8 @@ struct Parameters {
   float parzenSigma;
   bool equalVar;
   int restarts;
+  int deterministic;
+  int random;
 };
 
 
@@ -235,11 +239,11 @@ inline void freePopulation(Population* pop)
 int parseParams(Parameters* param,int n,char** arguments); 
 void displayParameterHelp();
 int gaInitializePopulation(Population* pop,int size, int dim, int numberOfLabels,int numberOfPveLabels,
-                           LabelType* labelTypes, float* lowLimit, float* upLimit, bool equalVar = false);
+                           LabelType* labelTypes, float* lowLimit, float* upLimit,  float* randomFloats, bool equalVar = false);
 void gaEvaluate(Population* pop,PdfEstimate* hatf);
-void gaTournamentSelection(Population* selPop,Population* pop,int elitism);
+void gaTournamentSelection(Population* selPop,Population* pop,int elitism, unsigned int* randomUnsignedInts);
 void gaReorder(Population* pop); // Re-order individuals in the population according the fitness
-void gaBLX(Population* pop,Population* selPop,float xoverRate, int elitism, float alpha, float* lowLimit, float* upLimit, bool equalVar = false);
+void gaBLX(Population* pop,Population* selPop,float xoverRate, int elitism, float alpha, float* lowLimit, float* upLimit, unsigned int* randomUnsignedInts, float* randomFloats, bool equalVar = false);
 void gaSortPopulation(Population* pop,int sortDim);
 bool gaTerminate(Population* pop, float thr);
 
