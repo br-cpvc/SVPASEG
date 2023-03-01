@@ -83,7 +83,7 @@ void freeAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages);
 bool maskAtlas(AtlasSpec* atlas, std::vector<AnalyzeImage> & atlasImages,AnalyzeImage* mask);
 bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages, AnalyzeImage* mask);
 
-int readTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, AnalyzeImage* mask ,int pureLabels);
+int readTPMimages(AtlasSpec* atlas,std::vector<AnalyzeImage>& TPMImages, AnalyzeImage* mask ,int pureLabels);
 void freeTPMimages(AtlasSpec* atlas,AnalyzeImage** TPMImages, int pureLabels);
 // int processTPMimages(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask, int pureLabels);
 
