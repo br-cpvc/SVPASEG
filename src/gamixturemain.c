@@ -147,9 +147,6 @@ int main(int argc,char** argv)
     atlasImages[0] = new AnalyzeImage;
     boolstatus = copyImage(&mask,atlasImages[0]);
   } 
-
-  //srand(1);
-
   allocateMixtureSpec(&atlas,&mixture);
   
   // compute the number of pve labels and pure labels.
@@ -253,11 +250,16 @@ int main(int argc,char** argv)
         }
       }
     } 
-    gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
+
+    RFRandom kInitRNG;
+    kInitRNG.Seed(i+1);
+    gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels, pveLabels,
+		atlas.labelTypes.data(),lowLimit,upLimit, kInitRNG, params.equalVar);
     for(n = 0;n < params.restarts;n++) {
+      RFRandom kRNG;
+      kRNG.Seed((n+1)*117*(i+1));
       gaInitializePopulation(&pop,params.size,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
+			atlas.labelTypes.data(),lowLimit,upLimit, kRNG, params.equalVar);
       gaSortPopulation(&pop,1);
       gaEvaluate(&pop,&hatf);
       gaReorder(&pop);
@@ -265,8 +267,8 @@ int main(int argc,char** argv)
       terminate = false;
       itercount = 0;
       while((!terminate) && (itercount < params.maxGenerations)) {
-        gaTournamentSelection(&selPop,&pop,1);
-        gaBLX(&pop,&selPop,params.xoverRate,1,params.alpha,lowLimit,upLimit,params.equalVar); 
+			gaTournamentSelection(&selPop,&pop,1,kRNG);
+			gaBLX(&pop,&selPop,params.xoverRate,1,params.alpha,lowLimit,upLimit,kRNG,params.equalVar); 
         if(params.sortPop) {
           gaSortPopulation(&pop,1);
         }
