@@ -44,7 +44,7 @@ int main(int argc, char** argv)
   AnalyzeLabelImage pveLabelImg;
   std::vector<AnalyzeImage> atlasImages;
   std::vector<AnalyzeImage> labelLikelihoods;
-  AnalyzeImage** TPMImages;
+  std::vector<AnalyzeImage> TPMImages;
   MixtureSpec mixture;
   AtlasSpec atlas;
   SvpasegParameters params;
