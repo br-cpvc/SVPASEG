@@ -283,9 +283,9 @@ int writeAtlasSpec(AtlasSpec* atlas,char* filename, char atlasType, bool overwri
 }
 
 
-void freeAtlas(AtlasSpec* atlas) 
-{
-}
+// void freeAtlas(AtlasSpec* atlas) 
+// {
+// }
 
 // reads the images in the atlas and ensures that each
 // voxelsums  are equal to the unity
