@@ -46,7 +46,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <stdio.h>
 //#include <values.h>
