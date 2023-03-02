@@ -47,19 +47,18 @@ int main(int argc,char** argv)
   AtlasSpec atlas; 
   PdfEstimate hatf;
   Parameters params;  
-  Population pop,selPop,popRuns;
+  Population popRuns;
 
   float maxMu,minMu,minVar,maxVar,mean;
   float* lowLimit;
   float* upLimit;  
   //  float* fitness;
 
-  bool terminate;
   bool boolstatus;
   bool changed_n = false;
   bool signedData = true;
 
-  int intstatus,i,j,itercount,rr,n; 
+  int intstatus,i,j,rr; 
   int pveLabels,pureLabels;  
 
   if(argc > 2) {
@@ -285,7 +284,7 @@ int main(int argc,char** argv)
     float*** randomFloats = new float**[N];
     unsigned int*** randomUnsignedInts2 = new unsigned int**[N];
 
-    for(n = 0;n < params.restarts;n++) {
+    for(int n = 0;n < params.restarts;n++) {
       unsigned int seed2 = time(0);
       if (params.deterministic) seed2 = (n+1)*117*(i+1);
       srand(seed2);
@@ -344,7 +343,8 @@ int main(int argc,char** argv)
 		atlas.labelTypes,lowLimit,upLimit, random_numbers_init, params.equalVar);
     delete[] random_numbers_init;
 
-    for(n = 0;n < params.restarts;n++) {
+    #pragma omp parallel for
+    for(int n = 0;n < params.restarts;n++) {
       Population pop, selPop;
       gaInitializePopulation(&pop,params.size,1,pureLabels + pveLabels,pveLabels,
 			atlas.labelTypes,lowLimit,upLimit, random_numbers[n], params.equalVar);
@@ -354,8 +354,8 @@ int main(int argc,char** argv)
       gaEvaluate(&pop,&hatf);
       gaReorder(&pop);
       copyPartialPopulation(&pop,&selPop);
-      terminate = false;
-      itercount = 0;
+      bool terminate = false;
+      int itercount = 0;
       while((!terminate) && (itercount < params.maxGenerations)) {
 
       gaTournamentSelection(&selPop,&pop,1,randomUnsignedInts1[n][itercount]);
