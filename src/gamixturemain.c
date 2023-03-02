@@ -398,7 +398,7 @@ int main(int argc,char** argv)
     delete[] randomFloats;
     delete[] randomUnsignedInts2;
     if( params.restarts > 1) gaReorder(&popRuns); 
-    // convert the best indivual to mixtureSpec
+    // convert the best individual to mixtureSpec
     for(j = 0;j < pureLabels;j++) {
       putMu(&mixture,i,j,gaGetMu(&popRuns,0,j));
       putSigma2(&mixture,i,j,gaGetSigma2(&popRuns,0,j));
