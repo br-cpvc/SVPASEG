@@ -76,7 +76,7 @@ struct AtlasSpec {
 
 bool readAtlasSpec(AtlasSpec* atlas,char* filename);
 int writeAtlasSpec(AtlasSpec* atlas,char* filename, char atlasType, bool overwrite);
-void freeAtlas(AtlasSpec* atlas);
+//void freeAtlas(AtlasSpec* atlas);
 int readAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages); 
 void freeAtlasImages(AtlasSpec* atlas,AnalyzeImage** atlasImages);
 bool maskAtlas(AtlasSpec* atlas, AnalyzeImage** atlasImages,AnalyzeImage* mask);
