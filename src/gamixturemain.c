@@ -147,6 +147,9 @@ int main(int argc,char** argv)
     atlasImages[0] = new AnalyzeImage;
     boolstatus = copyImage(&mask,atlasImages[0]);
   } 
+
+  //srand(1);
+
   allocateMixtureSpec(&atlas,&mixture);
   
   // compute the number of pve labels and pure labels.
