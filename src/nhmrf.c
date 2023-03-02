@@ -651,7 +651,7 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
       for(z = 0;z < dimz; z++) {
 	
         if(getVoxelValue(mask,x,y,z) > 0.5) {
-          collectValuesFromImagePP(labelLikelihoods,voxelProb,x,y,z,pureLabels);
+          // collectValuesFromImagePP(labelLikelihoods,voxelProb,x,y,z,pureLabels);
           for(l = 0;l < (pureLabels);l++) {
             posteriorProb[l] = 0.0;
           }
@@ -665,7 +665,8 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
 	 
           for(l = 0;l < (pureLabels);l++) {
 	    // posteriorProb[l] = posteriorProb[l] * voxelProb[l]; // MAP init
-	    posteriorProb[l] = voxelProb[l]; // mlinit 
+	    // posteriorProb[l] = voxelProb[l]; // mlinit 
+	    posteriorProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z); // mlinit
 	  }
           putLabelValue(labels,x,y,z,maxArg(posteriorProb,pureLabels) + 1);
 	  
