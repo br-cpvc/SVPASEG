@@ -47,19 +47,18 @@ int main(int argc,char** argv)
   AtlasSpec atlas; 
   PdfEstimate hatf;
   Parameters params;  
-  Population pop,selPop,popRuns;
+  Population popRuns;
 
   float maxMu,minMu,minVar,maxVar,mean;
   float* lowLimit;
   float* upLimit;  
   //  float* fitness;
 
-  bool terminate;
   bool boolstatus;
   bool changed_n = false;
   bool signedData = true;
 
-  int intstatus,i,j,itercount,rr,n; 
+  int intstatus,i,j,rr; 
   int pveLabels,pureLabels;  
 
   if(argc > 2) {
@@ -279,7 +278,9 @@ int main(int argc,char** argv)
 
     popSize = params.size;
 
-    for(n = 0;n < params.restarts;n++) {
+    #pragma omp parallel for
+    for(int n = 0;n < params.restarts;n++) {
+      Population pop, selPop;
       RFRandom kRNG;
       kRNG.Seed((n+1)*117*(i+1));
       //srand(1);
@@ -299,8 +300,8 @@ int main(int argc,char** argv)
       gaEvaluate(&pop,&hatf);
       gaReorder(&pop);
       copyPartialPopulation(&pop,&selPop);
-      terminate = false;
-      itercount = 0;
+      bool terminate = false;
+      int itercount = 0;
       while((!terminate) && (itercount < params.maxGenerations)) {
 
       unsigned int* randomUnsignedInts = new unsigned int[popSize*2];
