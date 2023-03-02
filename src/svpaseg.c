@@ -248,12 +248,6 @@ int main(int argc, char** argv)
     }
   }
 
-  freeImage(&img);
-  freeImage(&mask);
-  freeLabelImage(&pveLabelImg);
-  freeLabelImage(&labelImg);  
- 
- 
   return(0);
   // think about freeing the rest of the images as well
 
