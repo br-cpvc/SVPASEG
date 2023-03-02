@@ -478,6 +478,9 @@ int writeLabelImage(char* filename,AnalyzeLabelImage* img,bool overwrite)
       }
     }
     if(!(nifti_nim_is_valid( &(img->nii_header), 1))) return(5);
+	int filenamelength = strlen(filename)+2;
+	img->nii_header.iname = (char*)malloc(filenamelength*sizeof(char*));
+	img->nii_header.fname = (char*)malloc(filenamelength*sizeof(char*));
     strcpy(img->nii_header.iname,filename);
     strcpy(img->nii_header.fname,filename);
        //  if( nifti_set_filenames(&(img->nii_header), filename, 1, 1) ) return(5);
