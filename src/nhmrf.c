@@ -467,6 +467,8 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
   sliceWidth[1] = (labels->header.y_size) / sliceWidthMin;
   sliceWidth[2] = (labels->header.z_size) / sliceWidthMin;
   cout << "voxel dimensions:" << sliceWidth[0] << " x " << sliceWidth[1] << " x " << sliceWidth[2] << " x " << endl;
+  
+ // unsigned char* new_label_values = new unsigned char[dimx*dimy*dimz];
 
   // fill the look up table
   for(int i = (-1);i < 2;i++) {
@@ -502,12 +504,14 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
             posteriorProb[l] = posteriorProb[l] * voxelProb; // MAP init
 	    //  posteriorProb[l] = voxelProb[l]; // mlinit 
           }
-          putLabelValue(labels,x,y,z,maxArg(posteriorProb,numberOfLabels - 1) + 1);
+          char newLabel = maxArg(posteriorProb,numberOfLabels - 1) + 1;
+          putLabelValue(labels,x,y,z,newLabel);
+          //new_label_values[dimx*dimy*z+dimx*y+x] = newLabel;
 	 
         }
         else {
           putLabelValue(labels,x,y,z,0);
-         
+          //new_label_values[dimx*dimy*z+dimx*y+x] = 0;
         }
       }
     }
@@ -565,7 +569,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
               posteriorProb[l] =  posteriorProb[l] * getVoxelValue(&labelLikelihoods[l],x,y,z);
             }
             // then just find the minimum posterior and update the label
-            char newLabel = maxArg(posteriorProb,(numberOfLabels - 1)) + 1;
+            unsigned char newLabel = maxArg(posteriorProb,(numberOfLabels - 1)) + 1;
             #pragma omp critical
             {
             if(newLabel != getLabelValue(labels,x,y,z)) {
@@ -573,6 +577,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
               putLabelValue(labels,x,y,z,newLabel);  
             }
             }
+            //new_label_values[dimx*dimy*z+dimx*y+x] = maxArg(posteriorProb,(numberOfLabels - 1)) + 1;
           } // end if inside mask
         }   // end for x
       }     // end for y
@@ -580,6 +585,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
     }       // end for odd
   }         // endwhile
  
+  // delete[] new_label_values;
   return(iteration);
 }
 
