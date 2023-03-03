@@ -144,7 +144,7 @@ inline float gaGetSigma2(Population* pop, int indNumber, int classNumber)
   return pop->mixtures[indNumber][classNumber*num + 1];
 }
 // this is only 1-d version
-inline float gaSetProb(Population* pop, int indNumber, int classNumber, float val) 
+inline void gaSetProb(Population* pop, int indNumber, int classNumber, float val) 
 { 
   int num = 3;  
   if(classNumber > (pop->numberOfLabels - pop->numberOfPveLabels - 1)) {
@@ -157,14 +157,14 @@ inline float gaSetProb(Population* pop, int indNumber, int classNumber, float va
 }
 
 // this is only 1-d version
-inline float gaSetMu(Population* pop, int indNumber, int classNumber,float val) 
+inline void gaSetMu(Population* pop, int indNumber, int classNumber,float val) 
 {
   int num = 3;
   pop->mixtures[indNumber][classNumber*num] = val;
 }
 
 // this is only 1-d version
-inline float gaSetSigma2(Population* pop, int indNumber, int classNumber, float val) 
+inline void gaSetSigma2(Population* pop, int indNumber, int classNumber, float val) 
 {
   int num = 3;
   pop->mixtures[indNumber][classNumber*num + 1] = val;
