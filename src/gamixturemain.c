@@ -34,6 +34,7 @@
 // Version 2.0: The first public release of the SVPASEG. No changes to gamixture 
 
 #include "gamixture.h"
+#include "RFRandom.h"
 
 
 int main(int argc,char** argv)
@@ -253,11 +254,47 @@ int main(int argc,char** argv)
         }
       }
     } 
-    gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
+
+    int popSize = params.restarts;
+    int popDim = 1;
+    int numberOfLabels = pureLabels + pveLabels;
+    // bgVar and mixtureSize when pop->dim == 1 as hardcoded below
+    int bgVar = 3;
+    int mixtureSize = 2*(popDim)*(numberOfLabels - pveLabels) + numberOfLabels;
+
+    RFRandom kInitRNG;
+    kInitRNG.Seed(i+1);
+    //srand(1);
+
+    float* random_numbers_init = new float[popSize * mixtureSize];
+    for(int ps = 0;ps < popSize;ps++) {
+      for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+       //random_numbers[ps*mixtureSize+bgj] = (float) rand() / RAND_MAX;
+       random_numbers_init[ps*mixtureSize+bgj] = kInitRNG.GetFloatNormPositive();
+      }
+    }
+    gaInitializePopulation(&popRuns,params.restarts,1,pureLabels + pveLabels, pveLabels,
+		atlas.labelTypes.data(),lowLimit,upLimit, random_numbers_init, params.equalVar);
+    delete[] random_numbers_init;
+
+    popSize = params.size;
+
     for(n = 0;n < params.restarts;n++) {
+      RFRandom kRNG;
+      kRNG.Seed((n+1)*117*(i+1));
+      //srand(1);
+
+      float* random_numbers = new float[popSize * mixtureSize];
+      for(int ps = 0;ps < popSize;ps++) {
+        for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+          //random_numbers[ps*mixtureSize+bgj] = (float) rand() / RAND_MAX;
+          random_numbers[ps*mixtureSize+bgj] = kRNG.GetFloatNormPositive();
+        }
+      }
       gaInitializePopulation(&pop,params.size,1,pureLabels + pveLabels,pveLabels,
-                           atlas.labelTypes.data(),lowLimit,upLimit,params.equalVar);
+			atlas.labelTypes.data(),lowLimit,upLimit, random_numbers, params.equalVar);
+      delete[] random_numbers;
+
       gaSortPopulation(&pop,1);
       gaEvaluate(&pop,&hatf);
       gaReorder(&pop);
@@ -265,8 +302,35 @@ int main(int argc,char** argv)
       terminate = false;
       itercount = 0;
       while((!terminate) && (itercount < params.maxGenerations)) {
-        gaTournamentSelection(&selPop,&pop,1);
-        gaBLX(&pop,&selPop,params.xoverRate,1,params.alpha,lowLimit,upLimit,params.equalVar); 
+
+      unsigned int* randomUnsignedInts = new unsigned int[popSize*2];
+      ////srand(time(0));
+      int elitism = 1;
+      for(int ps = elitism;ps < popSize;ps++) {
+        //randomUnsignedInts[ps*2] = rand() % popSize;
+        //randomUnsignedInts[ps*2+1] = rand() % popSize;
+        randomUnsignedInts[ps*2] = kRNG.Get() % popSize;
+        randomUnsignedInts[ps*2+1] = kRNG.Get() % popSize;
+      }
+      gaTournamentSelection(&selPop,&pop,1,randomUnsignedInts);
+
+      float* randomFloats = new float[popSize * mixtureSize];
+      int leaveAlone = (int) floor( (1 - params.xoverRate) * (popSize));
+      //srand(time(0));
+      for(int ps = elitism + leaveAlone;ps < popSize;ps++) {
+        //randomUnsignedInts[ps*2] = rand() % popSize;
+        //randomUnsignedInts[ps*2+1] = rand() % popSize;
+        randomUnsignedInts[ps*2] = kRNG.Get() % popSize;
+        randomUnsignedInts[ps*2+1] = kRNG.Get() % popSize;
+        for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+          //randomFloats[ps*mixtureSize+bgj] = (float) rand()/RAND_MAX;
+          randomFloats[ps*mixtureSize+bgj] = kRNG.GetFloatNormPositive();
+        }
+      }
+      gaBLX(&pop,&selPop,params.xoverRate,1,params.alpha,lowLimit,upLimit,randomUnsignedInts,randomFloats,params.equalVar);
+      delete[] randomUnsignedInts;
+      delete[] randomFloats;
+
         if(params.sortPop) {
           gaSortPopulation(&pop,1);
         }
