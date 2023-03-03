@@ -54,6 +54,7 @@ int main(int argc, char** argv)
   bool useTPM = false;
   bool onlyPureLabels = false;
  
+  markov = false;
 
   float beta1,beta2;
 
