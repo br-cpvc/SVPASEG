@@ -546,7 +546,7 @@ inline void erode3D(AnalyzeLabelImage* img)
 void medianFilter3D(AnalyzeImage* img, AnalyzeLabelImage* mask, int windowX, int windowY, int windowZ);
 void knnFilter(AnalyzeImage* img, AnalyzeLabelImage* mask, int windowLenX, int windowLenY, int windowLenZ, int knn);
   
-inline char maxArg(float* pval,int n)
+inline unsigned char maxArg(float* pval,int n)
 {
   float maximum;
   int i,index;
@@ -559,7 +559,7 @@ inline char maxArg(float* pval,int n)
       maximum = pval[i];
     }
   }
-  return( (char) index);
+  return( (unsigned char) index);
 }
 
 
