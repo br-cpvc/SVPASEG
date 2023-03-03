@@ -485,7 +485,6 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
   for(int z = 0; z < dimz ; z++) {
     // allocate
     float *posteriorProb = new float[numberOfLabels - 1];
-    float *voxelProb = new float[numberOfLabels - 1];
 
     for(int y = 0; y < dimy; y++) {
       for(int x = 0;x < dimx; x++) {
@@ -501,8 +500,8 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
           }
          
           for(char l = 0;l < (numberOfLabels - 1);l++) {
-            voxelProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z);
-            posteriorProb[l] = posteriorProb[l] * voxelProb[l]; // MAP init
+            float voxelProb = getVoxelValue(&labelLikelihoods[l],x,y,z);
+            posteriorProb[l] = posteriorProb[l] * voxelProb; // MAP init
 	    //  posteriorProb[l] = voxelProb[l]; // mlinit 
           }
           char newLabel = maxArg(posteriorProb,numberOfLabels - 1) + 1;
@@ -518,7 +517,6 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
     }
     // free memory
     delete[] posteriorProb;
-    delete[] voxelProb;
   }
   
  
