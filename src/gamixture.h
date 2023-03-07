@@ -55,6 +55,7 @@ using namespace std;
 #define DEFAULT_EQUALVAR        0
 #define DEFAULT_RESTARTS        10
 #define DEFAULT_DETERMINISTIC   1
+#define DEFAULT_RANDOM          1
 
 
 struct SortStruct {  // I know this is clumsy, but couldn't come up with a better alternative in ten minutes or so.... 
@@ -86,6 +87,7 @@ struct Parameters {
   bool equalVar;
   int restarts;
   int deterministic;
+  int random;
 };
 
 
