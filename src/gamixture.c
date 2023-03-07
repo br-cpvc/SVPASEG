@@ -52,6 +52,7 @@ int parseParams(Parameters* param,int n,char** arguments)
   param->parzenSigma = DEFAULT_PARZENSIGMA;
   param->equalVar = DEFAULT_EQUALVAR;
   param->restarts = DEFAULT_RESTARTS;
+  param->deterministic = DEFAULT_DETERMINISTIC;
 
   if( ((n - 1) % 2) > 0 ) return(1);
   for(i = 1;i < (n - 1)/2 + 1;i++) {
@@ -75,6 +76,8 @@ int parseParams(Parameters* param,int n,char** arguments)
       param->equalVar = atoi(arguments[2*i]);
     if(!strcmp(arguments[2*i - 1],"-restarts"))  // Version 1.1
       param->restarts = atoi(arguments[2*i]);
+    if(!strcmp(arguments[2*i - 1],"-deterministic"))
+      param->deterministic = atoi(arguments[2*i]);
   }
   return(0);
 }
