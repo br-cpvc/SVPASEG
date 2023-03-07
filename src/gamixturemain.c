@@ -34,6 +34,7 @@
 // Version 2.0: The first public release of the SVPASEG. No changes to gamixture 
 
 #include "gamixture.h"
+#include "RFRandom.h"
 
 
 int main(int argc,char** argv)
@@ -260,9 +261,17 @@ int main(int argc,char** argv)
     unsigned int seed = time(0);
     if (params.deterministic) seed = i+1;
     srand(seed);
+
+    bool use_MT19937 = params.random > 0;
+    RFRandom kInitRNG;
+    kInitRNG.Seed(seed);
+
     float* random_numbers_init = new float[popSize * mixtureSize];
     for(int ps = 0;ps < popSize;ps++) {
       for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+       if (use_MT19937)
+       random_numbers_init[ps*mixtureSize+bgj] = kInitRNG.GetFloatNormPositive();
+       else
        random_numbers_init[ps*mixtureSize+bgj] = (float) rand() / RAND_MAX;
       }
     }
@@ -279,9 +288,16 @@ int main(int argc,char** argv)
       unsigned int seed2 = time(0);
       if (params.deterministic) seed2 = (n+1)*117*(i+1);
       srand(seed2);
+
+      RFRandom kRNG;
+      kRNG.Seed(seed2);
+
       random_numbers[n] = new float[popSize * mixtureSize];
       for(int ps = 0;ps < popSize;ps++) {
         for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+          if (use_MT19937)
+          random_numbers[n][ps*mixtureSize+bgj] = kRNG.GetFloatNormPositive();
+          else
           random_numbers[n][ps*mixtureSize+bgj] = (float) rand() / RAND_MAX;
         }
       }
@@ -293,17 +309,30 @@ int main(int argc,char** argv)
         randomUnsignedInts1[n][itercount] = new unsigned int[popSize*2];
         int elitism = 1;
         for(int ps = elitism;ps < popSize;ps++) {
+          if (use_MT19937) {
+          randomUnsignedInts1[n][itercount][ps*2] = kRNG.Get() % popSize;
+          randomUnsignedInts1[n][itercount][ps*2+1] = kRNG.Get() % popSize;
+          } else {
           randomUnsignedInts1[n][itercount][ps*2] = rand() % popSize;
           randomUnsignedInts1[n][itercount][ps*2+1] = rand() % popSize;
+          }
         }
 
         randomFloats[n][itercount] = new float[popSize * mixtureSize];
         randomUnsignedInts2[n][itercount] = new unsigned int[popSize*2];
         int leaveAlone = (int) floor( (1 - params.xoverRate) * (popSize));
         for(int ps = elitism + leaveAlone;ps < popSize;ps++) {
+          if (use_MT19937) {
+          randomUnsignedInts2[n][itercount][ps*2] = kRNG.Get() % popSize;
+          randomUnsignedInts2[n][itercount][ps*2+1] = kRNG.Get() % popSize;
+          } else {
           randomUnsignedInts2[n][itercount][ps*2] = rand() % popSize;
           randomUnsignedInts2[n][itercount][ps*2+1] = rand() % popSize;
+          }
           for(int bgj = bgVar; bgj < mixtureSize;bgj++) {
+            if (use_MT19937)
+            randomFloats[n][itercount][ps*mixtureSize+bgj] = kRNG.GetFloatNormPositive();
+            else
             randomFloats[n][itercount][ps*mixtureSize+bgj] = (float) rand()/RAND_MAX;
           }
         }
