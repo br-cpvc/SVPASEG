@@ -355,7 +355,7 @@ int computeMRF(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* mask
             }
           }
           for(l = 0;l < (numberOfLabels - 1);l++) {
-            voxelProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z);
+            voxelProb[l] = getVoxelValue(labelLikelihoods[l],x,y,z);
             posteriorProb[l] = posteriorProb[l] * voxelProb[l];
           }
           putLabelValue(labels,x,y,z,maxArg(posteriorProb,numberOfLabels - 1) + 1);
@@ -504,7 +504,7 @@ int computeGibbs(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage* ma
           }
          
           for(l = 0;l < (numberOfLabels - 1);l++) {
-            float voxelProb = getVoxelValue(&labelLikelihoods[l],x,y,z);
+            float voxelProb = getVoxelValue(labelLikelihoods[l],x,y,z);
             posteriorProb[l] = posteriorProb[l] * voxelProb; // MAP init
 	    //  posteriorProb[l] = voxelProb[l]; // mlinit 
           }
@@ -669,7 +669,7 @@ int computeGibbsAtlas(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImag
           }
 	 
           for(l = 0;l < (pureLabels);l++) {
-	    voxelProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z);
+	    voxelProb[l] = getVoxelValue(labelLikelihoods[l],x,y,z);
 	    // posteriorProb[l] = posteriorProb[l] * voxelProb[l]; // MAP init
 	    posteriorProb[l] = voxelProb[l]; // mlinit 
 	  }
@@ -821,7 +821,7 @@ int computeGibbsPure(AnalyzeLabelImage* labels,MixtureSpec* mixture,AnalyzeImage
           }
 	 
           for(l = 0;l < (pureLabels);l++) {
-	    voxelProb[l] = getVoxelValue(&labelLikelihoods[l],x,y,z);
+	    voxelProb[l] = getVoxelValue(labelLikelihoods[l],x,y,z);
 	    posteriorProb[l] = posteriorProb[l] * voxelProb[l]; // MAP init
 	    //  posteriorProb[l] = voxelProb[l]; // mlinit 
 	  }
