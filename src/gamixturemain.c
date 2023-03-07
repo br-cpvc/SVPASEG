@@ -259,6 +259,7 @@ int main(int argc,char** argv)
     int mixtureSize = 2*(popDim)*(numberOfLabels - pveLabels) + numberOfLabels;
 
     unsigned int seed = time(0);
+    if (params.deterministic) seed = i+1;
     srand(seed);
     float* random_numbers_init = new float[popSize * mixtureSize];
     for(int ps = 0;ps < popSize;ps++) {
@@ -277,6 +278,7 @@ int main(int argc,char** argv)
 
     for(n = 0;n < params.restarts;n++) {
       unsigned int seed2 = time(0);
+      if (params.deterministic) seed2 = (n+1)*117*(i+1);
       srand(seed2);
       random_numbers[n] = new float[popSize * mixtureSize];
       for(int ps = 0;ps < popSize;ps++) {
