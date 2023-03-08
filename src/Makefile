@@ -2,8 +2,8 @@
 
 CC      = g++
 INCLUDE = -I/usr/include  
-LDFLAGS = -L/usr/lib  -lstdc++ -lm
-CFLAGS  = -O3 $(INCLUDE) -fopenmp
+LDFLAGS = -L/usr/lib  -lstdc++ -lm -static
+CFLAGS  = -O3 $(INCLUDE) -fopenmp -Wno-write-strings -Wno-register
 
 
 OBJSHOWHEADER =  analyze.o znzlib.o nifti1_io.o showheader.o
