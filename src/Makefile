@@ -14,7 +14,7 @@ OBJRELABEL = relabel_analyze.o analyze.o znzlib.o nifti1_io.o
 PROGRELABEL = ../bin/relabel_analyze
 OBJCMATRIX = cmatrix.o analyze.o znzlib.o nifti1_io.o
 PROGCMATRIX = ../bin/cmatrix
-OBJGAMIXTURE = analyze.o znzlib.o nifti1_io.o nhmrf.o parzen.o atlasspec.o gamixture.o gamixturemain.o
+OBJGAMIXTURE = RFRandom.o analyze.o znzlib.o nifti1_io.o nhmrf.o parzen.o atlasspec.o gamixture.o gamixturemain.o
 PROGGAMIXTURE = ../bin/gamixture
 OBJERODEMASK = analyze.o znzlib.o nifti1_io.o erodemask.o
 PROGERODEMASK  = ../bin/erodemask
@@ -57,6 +57,7 @@ config_atlas_dirs: $(OBJCONFATLAS)
 	$(CC) $(CFLAGS)  $(OBJCONFATLAS) -o $(PROGCONFATLAS)  $(LDFLAGS)
 
 znzlib.o               : znzlib.c znzlib.h 
+RFRandom.o             : RFRandom.c RFRandom.h
 nifti1_io.o            : nifti1_io.c nifti1_io.h nifti1.h znzlib.h
 parzen.o               : parzen.c parzen.h analyze.h
 analyze.o              : analyze.c analyze.h nifti1_io.h
@@ -67,7 +68,7 @@ svpaseg.o              : svpaseg.c nhmrf.h atlasspec.h analyze.h
 relabel_analyze.o      : relabel_analyze.c analyze.h
 cmatrix.o              : cmatrix.c analyze.h
 gamixture.o            : gamixture.c gamixture.h parzen.h analyze.h nhmrf.h atlasspec.h
-gamixturemain.o        : gamixturemain.c gamixture.h parzen.h analyze.h nhmrf.h atlasspec.h
+gamixturemain.o        : gamixturemain.c gamixture.h parzen.h analyze.h nhmrf.h atlasspec.h RFRandom.h
 erodemask.o            : analyze.h erodemask.c
 medfilt3D.o            : analyze.h medfilt3D.c
 knnfilt.o              : analyze.h knnfilt.c
