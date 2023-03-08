@@ -3,7 +3,7 @@
 CC      = g++
 INCLUDE = -I/usr/include  
 LDFLAGS = -L/usr/lib  -lstdc++ -lm
-CFLAGS  = -O3 $(INCLUDE)
+CFLAGS  = -O3 $(INCLUDE) -fopenmp
 
 
 OBJSHOWHEADER =  analyze.o znzlib.o nifti1_io.o showheader.o
